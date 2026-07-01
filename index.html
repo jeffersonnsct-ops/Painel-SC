@@ -3,9 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Painel de Controle-SC | SC-PO</title>
+<title>Painel de Compras | Xmobots</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 <style>
+/* =========================================================
+   VARIAVEIS E ESTILOS GLOBAIS (BASE SC-PO)
+   ========================================================= */
 :root {
   --bg:#EEF0F4; --surface:#FFFFFF; --border:#DDE1E9;
   --navy:#0E2C5E; --blue:#1B5DBD; --blue-light:#E8F0FB;
@@ -19,6 +22,7 @@
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
 .topbar{background:#1A1A1F;padding:0 28px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.4);}
 .topbar-brand{display:flex;align-items:center;gap:14px;}
 .topbar-icon{width:42px;height:42px;background:#111;border:1px solid rgba(255,255,255,.12);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
@@ -27,16 +31,18 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .topbar-year{display:inline-flex;align-items:center;margin-top:4px;background:rgba(255,255,255,.12);color:rgba(255,255,255,.7);font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px;letter-spacing:.04em;}
 .topbar-meta{font-size:11px;color:rgba(255,255,255,.45);text-align:right;line-height:1.8;}
 .topbar-meta strong{color:rgba(255,255,255,.8);}
-.tab-nav{background:#111117;border-top:1px solid rgba(255,255,255,.07);display:flex;padding:0 28px;gap:4px;}
-.tab-btn{padding:10px 20px;font-size:13px;font-weight:600;color:rgba(255,255,255,.55);border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;transition:all .15s;}
+
+/* Navegação Principal */
+.tab-nav{background:#111117;border-top:1px solid rgba(255,255,255,.07);display:flex;padding:0 28px;gap:4px; overflow-x: auto;}
+.tab-btn{padding:10px 20px;font-size:13px;font-weight:600;color:rgba(255,255,255,.55);border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;transition:all .15s; white-space:nowrap;}
 .tab-btn:hover{color:rgba(255,255,255,.85);}
 .tab-btn.active{color:#fff;border-bottom-color:#4FA3FF;}
 .tab-panel{display:none;}
 .tab-panel.active{display:block;}
+
 .page{max-width:1320px;margin:0 auto;padding:28px 24px 48px;}
 .section-label{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
 .kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px;}
-.kpi-grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:28px;}
 .kpi-card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px 24px 20px;border-left:5px solid var(--blue);}
 .kpi-card.accent-red{border-left-color:var(--red);}
 .kpi-card.accent-purple{border-left-color:var(--purple);}
@@ -44,14 +50,12 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .kpi-eyebrow{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
 .kpi-number{font-size:52px;font-weight:200;line-height:1;color:var(--text);letter-spacing:-.02em;}
 .kpi-number.medium{font-size:42px;font-weight:300;}
-.kpi-number.small-num{font-size:32px;font-weight:300;}
 .kpi-sub{font-size:12px;color:var(--small);margin-top:8px;}
 .kpi-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;margin-top:10px;}
 .kpi-badge.red{background:var(--red-light);color:var(--red);}
 .kpi-badge.blue{background:var(--blue-light);color:var(--blue);}
 .kpi-badge.purple{background:#F0ECF8;color:var(--purple);}
 .kpi-badge.green{background:var(--green-light);color:var(--green);}
-.kpi-badge.teal{background:#E0F5F5;color:var(--teal);}
 .charts-grid{display:grid;grid-template-columns:360px 1fr;gap:16px;margin-bottom:28px;}
 .chart-card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px 24px 18px;display:flex;flex-direction:column;}
 .chart-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:18px;}
@@ -66,13 +70,6 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .legend-name{font-size:12px;color:var(--text);flex:1;}
 .legend-count{font-size:12px;font-weight:700;color:var(--text);min-width:24px;text-align:right;}
 .legend-pct{font-size:11px;color:var(--small);min-width:38px;text-align:right;}
-.mes-filter-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 20px;margin-bottom:24px;}
-.mes-filter-label{font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap;}
-.filter-select{padding:7px 32px 7px 12px;border-radius:6px;border:1.5px solid var(--border);background:var(--surface);color:var(--text);font-size:13px;font-family:inherit;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;transition:border-color .15s;min-width:180px;}
-.filter-select:hover,.filter-select:focus{border-color:var(--blue);outline:none;}
-.filter-reset{padding:7px 14px;border-radius:6px;border:1.5px solid var(--border);background:var(--bg);color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;}
-.filter-reset:hover{border-color:var(--red);color:var(--red);background:var(--red-light);}
-.filter-result{font-size:12px;color:var(--muted);margin-left:auto;}
 .filter-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
 .filter-label{font-size:12px;font-weight:700;color:var(--muted);margin-right:4px;white-space:nowrap;}
 .filter-btn{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--bg);color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;}
@@ -80,11 +77,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .filter-btn.active{background:var(--navy);border-color:var(--navy);color:#fff;}
 .filter-btn .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
 .filter-count{font-size:10px;opacity:.75;font-weight:700;}
-.tbl-filters{display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
 .fg{display:flex;align-items:center;gap:8px;}
-.fg label{font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap;}
 .sel-sm{padding:5px 28px 5px 10px;border-radius:6px;border:1.5px solid var(--border);background:var(--bg);color:var(--text);font-size:12px;font-family:inherit;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;min-width:130px;}
-.sel-sm:hover,.sel-sm:focus{border-color:var(--blue);outline:none;}
 .table-card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;}
 .table-toolbar{padding:16px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
 .table-toolbar-title{font-size:14px;font-weight:600;}
@@ -93,37 +87,29 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .tbl-toolbar-col{display:flex;flex-direction:column;align-items:flex-start;gap:14px;padding:16px 24px;border-bottom:1px solid var(--border);}
 .tbl-toolbar-row{display:flex;align-items:center;justify-content:space-between;width:100%;}
 .table-scroll{max-height:460px;overflow-y:auto;}
-.table-scroll::-webkit-scrollbar{width:6px;}
-.table-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
-table{width:100%;border-collapse:collapse;font-size:13.5px;}
-thead th{padding:11px 20px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:#F8F9FB;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:1;}
-tbody td{padding:11px 20px;border-bottom:1px solid #F1F3F7;vertical-align:middle;}
-tbody td.dc{max-width:340px;}
+
+.table-scroll table {width:100%;border-collapse:collapse;font-size:13.5px;}
+.table-scroll thead th{padding:11px 20px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:#F8F9FB;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:1;}
+.table-scroll tbody td{padding:11px 20px;border-bottom:1px solid #F1F3F7;vertical-align:middle;}
+.table-scroll tbody td.dc{max-width:340px;}
+.table-scroll tbody tr:hover{background:#F6F8FC;}
+
 .dt{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:320px;display:block;font-size:13px;}
-tbody tr:last-child td{border-bottom:none;}
-tbody tr:hover{background:#F6F8FC;}
 .scn{font-weight:700;font-size:13px;color:var(--navy);font-variant-numeric:tabular-nums;}
 .dn{font-variant-numeric:tabular-nums;color:var(--muted);font-size:12px;}
 .empty-state{text-align:center;padding:48px 20px;color:var(--small);font-size:13px;}
 .badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;}
 .badge::before{content:'';width:6px;height:6px;border-radius:50%;flex-shrink:0;}
-.bg{background:var(--green-light);color:var(--green);}
-.bg::before{background:var(--green);}
-.bb{background:var(--blue-tag-light);color:var(--blue-tag);}
-.bb::before{background:var(--blue-tag);}
-.by{background:var(--yellow-light);color:var(--yellow);}
-.by::before{background:var(--yellow);}
-.br{background:var(--red-light);color:var(--red);}
-.br::before{background:var(--red);}
-.bt{background:#E0F5F5;color:var(--teal);}
-.bt::before{background:var(--teal);}
-.po-kpi-row{display:grid;grid-template-columns:1fr 1fr 1.6fr 1.4fr;gap:12px;margin-bottom:24px;}
+.bg{background:var(--green-light);color:var(--green);} .bg::before{background:var(--green);}
+.bb{background:var(--blue-tag-light);color:var(--blue-tag);} .bb::before{background:var(--blue-tag);}
+.by{background:var(--yellow-light);color:var(--yellow);} .by::before{background:var(--yellow);}
+.br{background:var(--red-light);color:var(--red);} .br::before{background:var(--red);}
+.bt{background:#E0F5F5;color:var(--teal);} .bt::before{background:var(--teal);}
 
-/* Estilo atualizado dos KPIs da Aba 2 com borda grossa e modifiers de cores */
+.po-kpi-row{display:grid;grid-template-columns:1fr 1fr 1.6fr 1.4fr;gap:12px;margin-bottom:24px;}
 .po-kpi-card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 22px;border-left:5px solid var(--blue);}
 .po-kpi-card.accent-purple{border-left-color:var(--purple);}
 .po-kpi-card.accent-teal{border-left-color:var(--teal);}
-
 .po-kpi-wide,.po-kpi-mes{display:flex;flex-direction:column;justify-content:flex-start;}
 .po-kpi-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
 .po-kpi-value{font-size:48px;font-weight:300;line-height:1;color:var(--text);letter-spacing:-.02em;}
@@ -132,11 +118,8 @@ tbody tr:hover{background:#F6F8FC;}
 .po-status-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;letter-spacing:.04em;}
 .po-approved{background:var(--green-light);color:var(--green);}
 .po-partial{background:var(--blue-light);color:var(--blue);}
-.po-s-icon{font-size:11px;}
-.po-mes-select{padding:6px 10px;border-radius:6px;border:1.5px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;font-family:inherit;cursor:pointer;width:100%;margin-top:2px;}
-.po-mes-select:hover,.po-mes-select:focus{border-color:var(--blue);outline:none;}
+.po-mes-select{padding:6px 10px;border-radius:6px;border:1.5px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;width:100%;margin-top:2px;}
 .po-reset-btn{margin-top:8px;padding:5px 12px;border-radius:6px;border:1.5px solid var(--border);background:var(--bg);color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;width:fit-content;}
-.po-reset-btn:hover{border-color:var(--red);color:var(--red);}
 .po-charts-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px;}
 .po-chart-card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px 22px 14px;border:1px solid var(--border);}
 .po-chart-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;}
@@ -144,11 +127,64 @@ tbody tr:hover{background:#F6F8FC;}
 .po-chart-legend{display:flex;gap:18px;margin-top:12px;justify-content:center;}
 .po-leg-item{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--text);}
 .po-leg-dot{width:12px;height:12px;border-radius:2px;flex-shrink:0;}
-@media(max-width:900px){.po-kpi-row,.po-charts-row{grid-template-columns:1fr 1fr;}}
 .footer{text-align:center;padding-top:32px;font-size:11px;color:var(--small);}
 
-@media(max-width:960px){.charts-grid{grid-template-columns:1fr;}}
-@media(max-width:640px){.kpi-grid,.kpi-grid-2{grid-template-columns:1fr;}.page{padding:16px 12px 40px;}.topbar,.tab-nav{padding:0 16px;}}
+/* =========================================================
+   ESCOPO PAINEL DE COMPRAS (ABAS 3, 4, 5, 6 E 7)
+   ========================================================= */
+.s2-scope {
+  --s2-green:#28A737; --s2-green-bg:#E8F7EA; 
+  --s2-red:#C0392B; --s2-red-bg:#FDECEA;
+  --s2-amber:#B7770D; --s2-amber-bg:#FEF6E4; 
+  --s2-blue:#2C88B1; --s2-blue-bg:#E8F4F9;
+  --s2-navy:#0E2035; --s2-gray:#5A6A7A; 
+  --s2-border:#DDE4EC; 
+}
+.s2-scope .sec { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; color:var(--s2-gray); padding-bottom:6px; border-bottom:2px solid var(--s2-green); margin-bottom:14px; }
+.s2-scope .sec span { font-weight:400; opacity:.7; }
+.s2-scope .kpi-row { display:grid; gap:10px; margin-bottom:16px; }
+.s2-scope .kpi-row.c5 { grid-template-columns:repeat(5,1fr); }
+.s2-scope .kpi-row.c4 { grid-template-columns:repeat(4,1fr); }
+.s2-scope .kpi { background:#fff; border-radius:7px; padding:14px 16px; border:.5px solid var(--s2-border); }
+.s2-scope .kpi-lbl { font-size:9px; font-weight:700; text-transform:uppercase; color:var(--s2-gray); margin-bottom:5px; }
+.s2-scope .kpi-val { font-size:26px; font-weight:800; line-height:1; color:var(--s2-navy); margin-bottom:3px; }
+.s2-scope .kpi-val.g { color:var(--s2-green); } .s2-scope .kpi-val.r { color:var(--s2-red); } .s2-scope .kpi-val.a { color:var(--s2-amber); } .s2-scope .kpi-val.b { color:var(--s2-blue); }
+.s2-scope .kpi-sub { font-size:10px; color:var(--s2-gray); }
+.s2-scope .kpi-sub.pos { color:var(--s2-green); font-weight:600; } .s2-scope .kpi-sub.neg { color:var(--s2-red); font-weight:600; } .s2-scope .kpi-sub.warn { color:var(--s2-amber); font-weight:600; }
+.s2-scope .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:16px; }
+.s2-scope .card { background:#fff; border-radius:7px; padding:16px 18px; border:.5px solid var(--s2-border); }
+.s2-scope .card-title { font-size:10px; font-weight:700; color:var(--s2-gray); text-transform:uppercase; margin-bottom:12px; }
+.s2-scope .var-pos { color:var(--s2-green); font-size:11px; font-weight:700; }
+.s2-scope .hm-cell { border-radius:4px; padding:7px 8px; text-align:center; }
+.s2-scope .hm-g { background:#E8F7EA; } .s2-scope .hm-g .hm-v { color:#1E7D2C; font-size:12px; font-weight:800; }
+.s2-scope .ret-tabs { display:flex; gap:6px; margin-bottom:14px; flex-wrap:wrap; }
+.s2-scope .ret-tab { padding:5px 14px; border-radius:20px; font-size:11px; font-weight:600; cursor:pointer; border:.5px solid var(--s2-border); background:transparent; color:var(--s2-gray); }
+.s2-scope .ret-tab.active { background:var(--s2-navy); color:#fff; border-color:var(--s2-navy); }
+.s2-scope .comp-item { margin-bottom:10px; }
+.s2-scope .comp-hd { display:flex; justify-content:space-between; font-size:11px; margin-bottom:3px; }
+.s2-scope .comp-name { font-weight:700; color:var(--s2-navy); }
+.s2-scope .bar-bg { height:7px; background:#E8ECF0; border-radius:4px; overflow:hidden; }
+.s2-scope .bar-fill { height:100%; border-radius:4px; }
+.s2-scope .top5-item { display:flex; align-items:center; gap:10px; padding:7px 0; border-bottom:.5px solid var(--s2-border); font-size:11px; }
+.s2-scope .top5-desc { flex:1; color:var(--s2-navy); font-weight:600; }
+.s2-scope .top5-comp { font-size:10px; color:var(--s2-gray); }
+.s2-scope .top5-badge { background:var(--s2-amber-bg); color:var(--s2-amber); font-weight:700; padding:2px 8px; border-radius:12px; font-size:11px; }
+.s2-scope .note { font-size:9px; color:#8FA3B8; font-style:italic; margin-top:6px; }
+.s2-scope table { width:100%; border-collapse:collapse; font-size:11px; }
+.s2-scope th { background:var(--s2-navy); color:#fff; padding:8px 10px; text-align:left; }
+.s2-scope td { padding:7px 10px; border-bottom:.5px solid var(--s2-border); }
+
+/* Para a aba de PMP (Source 2) */
+.s2-scope .g-wrap { display:flex; align-items:center; justify-content:center; gap:16px; flex-wrap:wrap; padding:8px 0; }
+.s2-scope .g-item { text-align:center; }
+.s2-scope .g-circle { width:88px; height:88px; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center; font-weight:800; margin:0 auto 6px; }
+.s2-scope .g-circle.hit { background:var(--s2-green-bg); border:3px solid var(--s2-green); }
+.s2-scope .g-circle.miss { background:var(--s2-red-bg); border:3px solid var(--s2-red); }
+.s2-scope .g-circle .gv { font-size:20px; line-height:1; }
+.s2-scope .g-circle .gl { font-size:9px; margin-top:2px; }
+.s2-scope .g-circle.hit .gv, .s2-scope .g-circle.hit .gl { color:var(--s2-green); }
+.s2-scope .g-circle.miss .gv, .s2-scope .g-circle.miss .gl { color:var(--s2-red); }
+.s2-scope .g-name { font-size:11px; font-weight:700; color:#333; }
 </style>
 </head>
 <body>
@@ -156,11 +192,11 @@ tbody tr:hover{background:#F6F8FC;}
 <header class="topbar">
   <div class="topbar-brand">
     <div class="topbar-icon">
-      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAYAAAA+s9J6AAAQAElEQVR4AexdC2BU1Zm+dzLJJJm8EwJYUXmsrbaK1j7sw8pWuy0KggoYCIQQELBdrQhu1bYSX6joAsobIgRCICE8rCLY2u2iu2rdqlWrbrcKPngmISQhmbxnst93wh0mk8kkk5lJJpkf8s8595z/vL57vvv/55x5mDT5JwgIAn2KgJCwT+GXxgUBTRMSyiwQBPoYASFhH98AaV4QEBKGzxyQkYYoAkLCEL0x0q3wQUBIGD73WkYaoggICUP0xki3wgcBIWH43GsZaYgiEAQShuhIpVuCQIgiICQM0Rsj3QofBISE4XOvZaQhioCQMERvjHQrfBAQEobPvQ7CSKXKQCAgJAwEilKHIOAHAkJCP8CTooJAIBAQEgYCRalDEPADASGhH+BJUUEgEAj0DxIGYqRShyAQoggICUP0xki3wgcBIWH43GsZaYgiICQM0Rsj3QofBISE4XOv+8dIw7CXQsIwvOky5NBCQEgYWvdDehOGCAgJw/Cmy5BDCwEhYWjdD+lNGCIQtiQMw3stQw5RBISEIXpjpFvhg4CQMHzutYw0RBEQEobojZFuhQ8CQsLwuddhO9JQH7iQMNTvkPRvwCMgJBzwt1gGGOoICAlD/Q5J/wY8AkLCAX+LZYChjoCQMHB3SGoSBHqEgJCwR7BJIUEgcAgICQOHpdQkCPQIASFhj2CTQoJA4BAQEgYOS6kpfBAI6EiFhAGFUyoTBHxHQEjoO2ZSQhAIKAJCwoDCKZUJAr4jICT0HTMpIQgEFAEhYUDhDHRlUl84ICAkDIe7LGMMaQSEhCF9e6Rz4YCAkDAc7rKMMaQREBKG9O2RzoUDAm0kDIeRyhgFgRBFQEgYojdGuhU+CAgJw+dey0hDFAEhYQ9uTG5urhkSPWaMCgVDTf75g4BMoG6g95fyM19988vyBXtee2v+Ox9+9unUjKzmmTNy6ou23d48+uuXPfTkI0smPvnQY9ctuPPO78ybN+/S7KlTv3YnwgkTJlyWk5MzevLkyVdAorrRVPBVfGxh7NixlpkzZ15FmTVr1jezsrKudJXZs2dfaQjz586d+03KnDlzrgIW36Iwffr06aMzMzPP97H5sFAXEnbjNm/dsfMnDz722L079+5duWbdqpHr1q3Vli1bqj38cK722sGDvzlx4vjew58f3l1RXlFiq67+XZPdse/U6cqXB6em/UlztL6ekpT8mslkWtqNpkJOZciQIRuio6P/JyEh4e24uLh3EL5LSUxMVGFMTMy7hlit1neioqKUoMzbiP8lMjLyL8h/p6Gh4aWmpiaZbx7usIDiART3pAMH9p8/FP8w+cyYaJrZbNbi4+M1TEQNE0yLjY3VUlNTE88///wLhg27YNSFF1448qKLLhqGtLT09HQrJm98cnLyHVOmTLneve5QvoYF+yn6nYWxmkAqNU6On8JxG8LxU6jDPIvFojFkGgVE1CIiIh4oKSn5MpTH21d9M/VVw/2l3Z/nPj6q/OjRkZGOFi3C4dBa7S0arJrW0tKi4cmuternRuIaZ6oDL9ThhMSEjQKJ140fPz4WySH/t2DBghiQJ1/XXQboode6rmutra0KExBNs9vt6sHEkBgx7+TJkwXFxcVbPRSXJCAgJAQI3v7W5N7/aWJL83pTbY3msNVqidY4rbGxUdNNUZo1PlkVJfko6gIvjrOCQKNVqK2zKeuZkpIyElblSaaHutTW1j6Dh8cQk8mk6bquhIQyhP3X9bZ0xh14QMHlVAS02Wwar2kFT58+fQgew3zqiHhGwOQ52f/UgVTDl//71z+e+PyTVdFaq1ZTfVq5ZZxkVWeqNVfCucaN8bc47HTFNKyPtObmZrpp8zIyMq4z8kMxnDFjxrVwuefwAaLr54jmqa8kJcnGBxPcbq2urk49cEBg7csvv2zE9YwNGzbUeSoraW0ICAnbcOjydd+e3XeWHvvi9YZ62ydVZyobzJEmrAutGi0gxYEaGLoLkpU1rK+v17hmSkpKioRsxm5pDPNCTeiGon9b0VedDxpd19t1kaRzTaAOrJ1GAtL1pgtKoVVE3lM7dux401Vf4h0REBJ2xKTTlNhI8y9Onjx6pqm59gu7o7611lYFXdJPU2TERYc/Tlq6Z1gTapycVICFGQbL+BTjoSaVlZWLsZ67AH1ULqh7/3S9PSmxblQPF7qtXBNi3auKlJWV/dfIkSMXqwt58YqAkNArPO0zN23b9n6z3vIfjfa6FltdhS0hPlrTdIcioLsFNK45meHaabSEsAwaJy0Fa8M5U6dO/bEWQv94vqfr+l3YEVUPDJBRbbp46yIfLNTDGlK5onRL4YKW1dTUzMjNzW17QnmrQPI0IaGPk2D/8wd+VVFRcdpsjmzgxOuqOF00WkO4d2qzghPWjCMOkNMCIq7E+svaVR29mL8DRyoxJBL7SOvGvru2D5IqC8mQ6QwxFuVyYwNGoxtaXl7+2z179nzBfJGuERASdo1RB42Y6MR7bbUtEZFRVi3CFKk5Wuya3qppZlOEChlvtTtUnIU5mUk+uKC8VNv4tIZYR10K63ifSuzjF1jB+0Cmi9EfLSIC49DPHT24do2kpA7FSOeGE+PV1dXaqVOn9oOAG3gt0j0ETN1TEy1XBHYX7X6rqrL26Zoz9Y319Y1qTcTJSatHspF0JJlrGU9xXdc1uH4LMzMzf+Apv7fS+LYz9P/XtNZ8UNAS0n0GKZU7ijwVsj+6rmscn663kZR5xpix9j2COjI0+ecTAkJCn+A6p7xr164lmHTv0mpw0jLUdV0dRdBKkJDU1vW2jQxOVkN0XVcuHScz3D7s2cQUwhJFUr8vBP1aj07EcX2HOI9R1DiwtmvXHeYxQdfb+s84hcSFFWzEOnD+pk2bapgm0n0ETN1XFU13BOCG3Y71YTUJiLiyFgxJLuoaIePuouttE5nWJi0t7UKQdoW7Tm9cY036i9TU1G/DgqnzT/afa132neTSdV1ZPl7r+jnrp539x3IgoAYCbti5c+f+s8kS+IBAfyKhD8PqHVWcgX0EV+wJTMBmWBI1ibkxwdZJTIauYlgSI03X2yY1LRAOvGfn5OT80MjrjTAjI+MikGgJCcY+GBadfWdfadEZ6nrbA4N94jWFcZYjYUHc/8XB/D1ME/EdASGh75i1K1FQUPDEiRMnDnICg4xqfUgLwolsENIooOu6EXWG1NN1nW/3sqCOddnZ2Tj3cGYHNYJD+e2wggmwwhrXsLTKJCPjeLgoy24QkR0xyKfrbeNgHkhog0w5ePBgC3VEfEdASOg7Zh1KwIrl4JD7ONZ3aqu+qqpKvUWN1rGDsksCJzUJoOu6eqvXkCFDvo7J/xsXlaBF4YZm67r+PRCfDwC1Y4u2Vb/5YCARka/WruwnCcfOMI0hycrNG7iivy0uLv6QaSI9Q0BI2DPc2pUqLCw8ik2ah41JTEtIqwI3Telx4hqiEs6+cHJzsnNCk8BMRrlFwd4tnT59+tCEhIR/hygLyH6SeOw/3/NJYjLO/tDlZN/ZV14zTmGfYelfwTpwOdNFeo6AkLDn2LUrifXh+uPHj/+ek5WE4iTmxOY1rQhDilGIE5n5vGaceQxxdmiBbBkzZoyZecEQEH89rHcK+8j62a7RPsll9MvIY/+ZRn2UVR/hggUsBVnnUCcIElZVCgkDeLvj4+NnYre0jJOWbiYtDCc4xbUZTnjqUKgD66fBkqpDcuyUUnXk8OHDH2Yk0ILNmBkg+Xi2TWJ1VT9Jaejw4UIXFGmtiC/Aelg+pGuA40coJPQDPPeieXl5pSDYQq4JuR6kGDpIVxsdvDZISSJgMqu3s9HC8PrUqVM8wOcGzz2TJ08O6G4p6gP/4p6Oi4tT54BGP9gnb4IdVLVm5AODxC0rK9uGse7wVkbyuo+AkLD7WHVLc/PmzduwW7gVrpqybq6FSERec/JzrWUIycc8riVJRpZNTEy0YOdyfSB3S9PT09ej3nTWz/awpmN3vAr1aNX5sGD89OnTh+GW/txrIcn0CQEhoU9wdU8ZRxV3wBoe5iYHS5B0FMY5kRka13Tv6I6SkHyHCtZq6h0rcPm4Y3oprM/T1PdXsrKyxqHOaWzHIJTRP291U5d9ZH8R2kDCzJKSklpvZSTPNwTCnIS+gdVd7RdffLEOE342XMsmh8OhinHycyKThK5ClxWWU+1S0u0DeTVMduUu0m2E5Zo/adIkvz6Jj+MIK9zIVYMGDVJHDuwHrRstouqclxf2mw8G9hEPlyV79uz5sxd1yeoBAkLCHoDWnSL5+fkHMXHXcbLDfVNFOPkp6uLsC0lKF5QhiKvISMtolAMBIuCW5uXk5MSfLeJzgHqXwhW9kKSDZeV607kO7aoylOVb0rQzZ868cfHFFz/Rlb7k+46AkNB3zLpdwmq1LsLE/5ATmdaPBPQkrgRk5a6kpSVCPRehfI8+iY8zwWtgTeeR1CQ7BYRSX0eBvrE5r8L+grhnKisrM3Jz5UO6XsHqYaaQsIfAdafYhg0bmuHCzQCBbJjI7YrwmgQjARlSSFaG0FdvmmYBuJEM+B2nt4NQN6kLH15wbLIVLm8EN31YP+s24qyb10wnORlnf1zT4Rq3grT3/O53vzviQ7Oi6gMCQkIfwOqJ6vbt29/DIf6DnOC0KhRudlBIxK7qpLXiWhH6JrimKzMzMxO6KmPkz5o161GQ6yKSykhjyL4wpKBebgCpA3heU5dWkzpsFxZwd1FR0XPM698Sur0XEvbCvcFu4jJYk7d5JMDJTcsDC6M+ddFV8yQCdWkhU1JSLgCplnZVhvlYQ46ABVxAq0dikfxsm3mMM6RwRxburvouVRKSumyL69IjR44cxkNgHvVEgoeAkDB42LarGQS8GUSsp7tHEsCqOa1PO0W3C+qTGCCf0gcpZ2O3s8tDfBCrAASMZVm2ZxDQqJ7XFLirGo4dNIbGw4FtlpaWNsIi3oEHyGmjjITBQUBIGBxcO9TKN3mDhHeRENx44YTvoOQhgXognvomM5CKZOHvYazCJkmn7y2FGzoL7XyfxCXRSCqGrB7pDJzCt8vBYjo/PUELyPZgAdcWFxf/wakokaAhICQMGrQdK961a1fe0aNHX6C7R9ePZOyo1T6F5IEVVa4r9XkNco0+fPjwwvaabVdz585NhFVbzjYo1DfEICCvqc1rEhAWj5eK6CTsJ5988je0uUglykvQERASBhriLuoDMX5RUVFxkgToQlVl0zKBdOoAnwm8pkVMSEhYCLd0ONNcBUR9GkRKpLvLdLZjCK9dhencHEKf1PkkCYmNmBq4sNPhhtpddSUePASEhMHD1mPNdEvhAs6Ca6omvkcll0RuyoBU6sPCIJh6IzVIwnfUDAI5l7moavxBThBrFgiq9KiPa1cV9SZywxIa5KMe24ALyoP5xTt27PigXSG5CCoCQsKgwuu5ckzyl0HCQk5+WiKQSZGD6z8SjNeMkyyMkyC8ZpxpRq1wO2/Kzs7+mXGN+tamqoDAJwAAEABJREFUpqZGUJfiSkCjHIlHYR7rJfG4BuQuKR4Of8RxhHxI1wC0l0IhYS8B7d4MXL+5ZWVlX5AAtHZcI1KHpKTQnSQhSRYK8wwi8Zp5EN6/VcyDFZyNOr6FNF6qsz+6ruoCLyyDQJGd9VB4TdeW7WENWIF+ZDFNpHcR4E3s3RalNYXAhg0b6mC5ZmIN1kjikBQkHoikXEmQQh1JKOWzL9RhlISiNaPu0KFDR86fP38z6niMb9CmZaMe6lbrSMapT2FZd6mtreXOqAOW8F+3bdt2wj1frr0gEKAsIWGAgOxJNQUFBa/W1NQ8ZbPZFPEYkiwkF0OS0r1ekorCfArIw2OLbLimgxlnWZZhHt1Xxt2FeRSmoxw/91iMvhTxWqT3ERAS9j7m7VrEofrDIOIHsGRqo4aWjOQh0eAeKveRBUgaCuMUrueok5iYqAjMOAlIF5RxWkpaQ8ZdhWWNeph+7NixQ9XV1XOZLtI3CAgJ+wZ3Z6twS5tBwJlVVVXNPK8jAUk+pKnP/jkVXSIkjyG0niQfSUdi8ppxg2guxZxRluXGDVzeZoTzcBwhH9J1otP7ESFh72PeocX8/Pz3YI0e54d4DetFEnHTpIMyEkgiBIqkJCAJy80VprEMSUhCM2SaIayTwvK0uCDsMhyZ/IeRL2HfICAk7BvcO7SKY4vFR48e/TNJQvKQWCQKFV2FBKKOIbymHslHPZIR1s35DhtDjyHzKbSYIOlHmzZtComfZWOfwlmEhCF090Ge+dhcqSJhSBQS0b17zDPSSEDGaQ1pQZlHAlNAMvWZRNbDdJLT0MMZZQPaymRZkb5HQEjY9/fA2QMcEbyPteGvadlIImeGHxESjwSkpYT7qX5JF8RcBCv4vh/VStEAIiAkDCCYgagKa7Q1WB++QmtmWDp/6iUBedSBTRj1mxPY9Nmfl5e32p86pWxgERASBhbPgNQWExMzvby8vDIQJCSZ4Xqq956eOnWqDG7r7IB0UioJGAKuJAxYpVKRfwisW7euDEcVv6Rb6l9Nmnr7Gq0hiYi67sBO7EmE8hdCCJhCqC/SFRcEQJwSHLyXuyT1KIp61Ncbco2J+ib3qBIpFFQEhIRBhbfnlWPz5N9BoEE9r6GtJN1Rrgnh4jJhUnZ29g2MiIQOAkLC0LkXzp5MmTLln+Pj4+eeJY4zvScRkhCbMapodHS0GccVK6dOnZqmEuQlJBAQEobEbTjXicmTJ8eAgHmwXmZfNmaoS2FNIJp6Nw1DWFO1KcM8HlckJyePsFgs7T4MzDIifYeAkLDvsPfYMtZtq1NSUkYw02Tq/u0h4SgsR8JR4NKqjRnGsSvKLHWAjzPDadOnT5fDeoVI3790/y73fV8HfA8yMjJuS0hImEby8N0y3dkdJcE8AWOkM2Q9JCgtIQjIr8CPiIuLe/amm27q8e9beGpT0nqGgJCwZ7gFvBTXaXBDl2PdBmNoUR9hQqTH7dCKUkg8EpDrS64NeWhPIoLkKYMGDSrocQNSMGAICAkDBqV/FYEoO61W61AShJaQhKEF66pWEg1lNYq7LtNqamrUm7n5CXoQXP0kN8uA8Pww8Pjbbrstw72cXPcuAkEmYe8Opr+2ht3QBUOGDPlnkoTE48F6UlKS2lDpzphINkPoflJIZIbY4OHXV6i1IDdpYAG1qqoq9bX3sLQmEH8p3ODzutOO6AQHASFhcHDtdq2ZmZmXYcdyMa0TSUOSkFB8s7WxmeKtMhKWeixLPZZlSDHSGFJoZambnp7OdaH6Dpu0tLRh0F0Jkb8+QkBI2EfAG83CGq2CJJKEkZGRai3IPKSpd7ow7k1g3apJLFo+6pGEhvCaJOW6kGtCEptpXBfSGjKN5MTa8GYcjch7SglOH4iQsA9AN5rEeuxBuJ0/ooUiGUAodaRAQpI8JBPJRevIa5KU1yQdr8+cOfMxXNhLEVawPPVZN3WoSx2WZb2Msx3qMJ8EZBrbQrqOXdkns7KyvsLyIr2LgJCwd/F2tnbrrbd+F27hAySFM9FDBATRuEnDtR1DkoqWDcQCF+2Lli5derypqek+EgppqgYSEmka1nvq2tuL0T7c0lQQMs+brvc8ye0pAkLCniLnRzm4fjyn2wZrZcHEVzubJAPJYwirZxo3akgmupKwehrJxjSQ7JWNGzceoN6IESM2gYBvoz614UIrx3q4M8p8b8K6SGpaR+yY/gybNLd705e8wCMgJAw8pl3WCDItGzp06ChaNRKN0lkhEgSEU0cLIJr6YC6OG2wg2a+NMrm5uQ6Q9AEQ1AHzqL4CkeXQjqHSaUgLy0xaXK5DcYj/yPTp04cyTaR3EBAS9g7OzlawDhyL9dc8Wh4Sxp2AIJdTlxFeg1xqrUiSgIC0nGs3bNjwLvMNyc/Pf+X48eMlxveQsl6S18jvLKQlrKurU8SlJQUpB6NfxZ3pS3rgERASBh7TTmuEGzoIrmIeyGTBROcvK3XQJXlcE+mu0koxDRsw/I6YU7BWD/LaXUCgX37++ec2kpZW0yjnrud6TYtpEJdlUId23nnnXYOHxd2uehIPHgL9j4TBwyLoNcP9XAU39DxOfJKNRKSl89awkc+QJIF1u3f58uX1nsrk5eWVglBLqEfyetJxT2Mf4MrSuiqXlxaafcPZ5YMg4jfc9eU68AgICQOPqccap06dOgfncVO4w2lYKJDSeS5oFCIBDGEaScKQbiPS39q0aVM+rzuT1atXL4El/MQgbWd6RjrJCuusLlFOub28wHoyGRs1q7DelDlCQIIoAnAQwTWqnjBhwjBM6CfhhqqNFRKLE575tIq0XCQk00E0RUySiHEK9UBCG9aDdzDelUAvBxazhQTjOg9x9bY1XjPO8nwQsA1aPvaF7bAvRh8Yx9r12kOHDj1AfZHgISAkDB62zpphAQtAgBSs5dRbxRoaGjRMcBWnZWQ6CUEhKVgQ+iqfIfXhMq7ZunXrX5nXlRQUFPx3eXl5PsuCvBqsmvPHZnjcwTa4GcP2vNVFYsK9/ZW4pd5Q8j9PSOg/hl5rwAS+B1buWkxmjRsrtDAkB4lFK0VXkISgBWKcIa0VdQzCgKjHIYu9NuSWCQItrKqqqqD1BYE1WEdFRlpdow8kJ/RUSRLSEKZR2AdIHPqxWSn19kuYtCckDOKNBgFHw8rlpqenO1vh5Cb5SASSDQRVB/AMSUymo4w6dOdhOwkKd/GOkpISj5sxzordIoWFhWdQdhEJSCLyIUACUo3tsA/M47UnYT8pLJuSkvItnB3+1pOepPmPgJDQfww7q0HHOnA3JnA8JzutjEEEWDX15mwSge4iLSAnPEnCtRpJwmuSEbovYDPmhc4a8ZYOtzQfRHyV9bEPrB+E1lgvHwAkmGt59tH1mn3gNa0zytybnZ19Na9FAouAkDCweDpry8zMXAE3biQtG8/euA47deqUOgbAhHau94wCJAf1GJIsLHfs2LEKlJtn6PQkBIlnwcpWnSWS+oAv0lQ/UHe7Kg3SuSbyQcG+YCzx6NsqEDHaNV/i/iMgJPQfww41wHUbg0k7j2suTn5aIU5kko8hScZCJAGFcRKAusyjxYQF447movz8fL++MRvW8LPKykr1IzO0uiQgyMQm1dmginTyQsvIMlgXqo2dwYMHX4X+Od8u10kxSfYRASGhpmk+YuZVHeeBg2E9tmL300JiUZkuJuN0Cw0CkIxMg5VyHkkYkx0bKhqI+xLcUK9ngqy7O4Jd1TUgz3+S5OibRpKzbaSp4owbohLOvpCE7BP12E+Whwu7EFZe3NKzGAUiEBIGAsX2dSyFxRjGSc1JyyxOZsZJAF4bwnRaQk5wpvGaAqLWgIT/yrRACSzgbOyQVrF+xBXxQSgVMs0Q9ttV+LBgHvtJy56cnBwDt3nTmDFjzIHqW7jXIyQM4AzIysqalpqaOp2TnJstnLxdVU9Lw00SQ5dWB7uijxYVFX3eVVlf8umW4kHwG7qXILlyL9kuCedaD/thCNOpgw0mtVvLvtGlRp8vGTVqVC7zRfxHQEjoP4aqBqwDh8KircAkNcFSqHM5XKs8by+0MIa7ismtlZaWvgfCLPVWpqd5cG9X46zydbZJq0wyupPQvW7qkbjsG60iyit3FmNbkJGRMcZdX659R0BI6DtmHktgUm7BZswgTnBaDE5upHnUdU3kJIfrqZJOnz5dC0Jmq4sgvaBvM0C+irKyMg2uZYdWaAVdE2kJOQ72k0TkuJg/aNAgPGtiN+bk5PSrLxBm30NNhIQBuCPYjFmYlJT0E1hB9QZouqKcuHAru6ydkx6zWZ0bwuIsg7V6v8tCfijAyn4GAv6WmzPYNVVrQtfqDJIZabR+7CNdbBBYWUHmYX2p4Qx0FPr8BK9Feo6AkLDn2KmS06ZNuwJrpsW0FFhzqe+D4fECLSJ2SJWOtxfumLIciPExyj3sTTdQeSUlJWvR3ut8UJBglM7qJilpDfmAoT7POjk2XpOgIPPsyZMn/7iz8pLeNQJCwq4x8qoBq1cCssXDFVVWhVaNbhvcSn4A12tZZlIP1qQRk30OyGFnWm8IiDUDlrCWhCIJKeiDOjtkyD4wzRDoKytvkI8uNMtivBa4tZvELSViPRMhYc9wU6VwXvYoyDeKpOOGBS0FJy0nLCcy05WilxdOZJBhE87y3vSiFvAsuqWo9BH2F2GnfxwHLR4VsJZUlp5xPjwYcowg5oWIB2UzCfUO+D8hYQ9vMY4jrocFvJtnZ6yC7ignNCeqxWJRXz3PCUwh0ZjHCUtdplF4DRf0GNZb/8b03pbNmzcvra6ufot9Z3/48GCc7jHFeKgY/eIYSD5jPEynDkN4BLNnzJgxnnER3xAQEvqGl9LGZLOCfHmYeFaV4OWFmxk8FCfhOInheiq3jhMZBGjBjug8uKG1XqoIahbINr+ioqKW/YFrqR4ebNAgF+PehMQlMbEuBn8j18I7SPCmL3kdERASdsSkyxQQazV2Qy8kubpShruqPkdIPZKQEx2WTxERYTEO5V9iXl9Jfn7+e3gwPIIxqTUtN4rYFzxknK4nrzsTME+tfTm2IUOGfAXklZ9b6wysTtKFhJ0A01kynvTjBg8erH7Ik1agMz0jnWtFbOWrS1obun2UEydOlCNcoDL6+GXLli1LMZb34Rrz59LUu2nKy8vVp/+76hosqdKn3llXfFx2dra4pQSkmyIk7CZQVOO7YmABt8ACRoJA6uNATPcmWDfyzdjKynCDgxaHZER4D9Zk5d7K9mYedjtnVVVV1ZNUFOx4dssSEgdaQ5ahNUxPTzfBim6cO3fu0N7sfx+25XfTQkIfIMQkWwt3MoVFYDnU10Uw7k14qM2JirKGC8rfB/xTYWHhNm/lejsPu7N/xcPhabim6o0DXMOy3131g+NiGa4LGT9rDQfjIbO8q7KS34aAkLANhy5fcQ72i7S0tAmcmJxsrms9b4WxeaMsJi0F1oD8wt9KhCH5M2Qg4oPYKPofWmw+PEhEb2NjHupo+VkAABAASURBVHVh+TS+O4hxpnHMeFhNges+k9ci3hEQEnrHR+VijXMRJmQuJxeshVoDkVRwS1W+txdaCZahpWAck/xxbMYE9BMS3tr3NQ/9vAN9tHVnbKybHgGtX2JiotqgIRGJDR5SOmQZHl7yK8AEyosICb2AY2RhzbMXEyqNFhC7f8pdo0XkBDR0PIXUpx7Kq61/uGh/xm7kU550QyWNv3GBh8ZKWGv17hnXfnE8vMYDiZ/6Z1SF0FcfdeI4DUyoC2KmgJTyc2sKqc5fhISdY6NyZs6cuQTEuyIuLk5dk1S0aJxkcLnaTVSmGUJl6lK47Q/3rhET24/vi2GNvSN5eXn3Y6PmEHdL2X+SjiFb5/hIOgrjTPcmwG1sRkZGDsuKeEZASOgZF5UKAv4AE+xunH+pryXkpOOTHk93ZQEwUZUedFRovPDaEOrSXcOEfgprrg8MnVAP4ZbeBreyCdZb/WIT+2uMiaTEg0ltNDHdm9CthUV8ctq0aSO86YVznpCwk7uPTQW+82PDeeedF1NZWam26zExlStKt4vFuCHBkMIJyslJYdxIA/l4WP8RrGG/+iT62rVr34HlXmaMg2Oi8EHEhwofRhTmexOOH+ekaQkJCau86YVznpCwk7sPd+vh1NTUS+l68qmPNaFa1zHOyUdicjLSUlAYpzDOfJbDJCZpm+CK3lVSUtJrn5DoZEg+J2PHczFI9DEeIGrswETVwQcNcaDAWipL2VlIl504QHdsVlbWnaoCeWmHgJCwHRxtF+PGjfshSPT9EydOvFFdXf0OSPURdgz/D/IPxD+FHIJVPIyJ9xkswxeQI2flS0zUL5B+GIT8Owj5UWlp6eMg4J/aau5fr+h3Ew7wbwcG74GQH+Jh8g8Q6jNgcwRjOwYcjmPclGMIXcVIO4Kyh1Hu7xj5B8DldqwPZbcUYLj+dSSha26Yxvft2/ffe/bs+c6OHTt+gE2Kb61ateob69ev/9rGjRu/unLlyn969tlnR0FGLl++fATkIsgFy5Yto1y4YsWKi5iHMpesWbPmGzt37sztzzDiOOWNLVu2XIld08vgon4V4xrxzDPPXIAxn4+xfmXZsmWU8xG6ipF2ATAYCQwvWb169ejCwsLLv/a1r/n1Par9GcvO+i4k7AwZSQ8KArm5uY6gVNyPKxUS9uObJ10fGAgICQfGfZRR9GMEhIT9+Ob53XWpICQQEBKGxG2QToQzAkLCcL77MvaQQEBIGBK3wf9OXHfddanXX3/9ge9973u7/a9NauhNBISEvYl2ENvCQbiemJiYOnjwYL7dLogtSdWBRqBXSBjoTkt9HRGIiYnR6+vrm0nGjrnBSbnpppviJ0+enBic2sOnViHhALnX0dHRujXOGmm2REX1xpAmTJjwuK7rhx0Oh3w6wk/AhYR+AhhKxRubmiJ1TYvojT41NjZ+JT09PSIhIUHvjfYGchtCQg93d9y4cf8CN+u+W265ZZqHbO2nP/3pLOTfe+utt17OfH79xcSJE+83rm+++eafwFI8O378+EKkL4Ru2yeCoYzr78CNW3HDDTcUIFyCti5Acqd/E2655fqJN09ccf3P/mXbjePGPYc6Z6Nch58joyWMj483wzopEo4dO3bQxFsm3j/xllvyxt2EchPH3+naD/cGc3NzTejzbejPKoyjaMqUKavRx6lz586NdNVFHTdC7hk6dOgoWMEWkPF2Xk+bNu1XCIcYuqxvxowZ87OysvYgPAB5dtKkSdcZ+RKeQ0BIeA4LZwzrq7dMJtPstLS09Zg433dmIAISjcUGyFORkZE/veyyyz5EEr/ScKjZbF4UERHxXUzeJzE581H+uyDGN6F3F9ZpB8aMGWMGeRa2tLTsQZlvR0VFXRobG5thiYn+T6QrMiPd+Qcip98w7obf21ua1zc2Nn0/LSUlJiLSfHFcQtxDUdGWdzM8/EBnS3MzumG2j584fqwl2vJ6ZJQlo6Gx/qKYGOs1SYnJ9zbbW94Bwa50NnI2AqJc/uGHH36QlJS0DET+ls1mi0bW1cnJyctramreycnJcbqcGNN30Mg9kEHNzc11GMNPMO6fQ+8ujG0wymkgY9ynn376Nsb+BPS+AqI2I+9ncXFxS5gv0h4BIWF7PNRVSUlJNSbbL2pra5stFgu/Q1NZA5AlPiUlZQUm12lMwBw87dWbkXFdb7VaW2CFZoBwV2Nijt27d+93UfbHqPBtTMShmNDbkZ4F8k164YUXfoAy38PE3GMyRWiJKUnPQs/5h0kcFWON3Rcba73UYolafmD//u8UbS+69YW9z19jq7MtssZarc0O+2YQcZhRCHXp0Oe3uSUnJSQti0tIfKj8ZOlVL7904HrN4fh2Q0NjSWxsbLRda30OpHJaUliwCzGWF9D/lLq6unt37Nhx9csvvzxx586dV2Esz1oslpSmpqY/ZGdnk5haQ0PDEyDpJZC/I8+KsjOhd0VCQsIlo0eP/hv7g3buQd5Xkf7Upk2bvou6bgK5v46NI4+eBcuEswgJO7n7W7Zs+QOIsgYTatjJkycfpBqI+TAmexqe7A+BqF8yjWIymVrxD1wzD4dOJiay+hqLbdu2ncBkfBjkNIGEP0DZ+/bs2fNnlkH5JljcxU2NjdUm3XQpLR/TKa0m089hTYebzREv7i7Z3e4T6S/sfaGoprZ2bXxcXHRdff0D1Keg8daGhnoUa42rb6jP27ZlS+HBgwdbmIe2qkuKixdC/x+pySkXnLHZbmY6BcT4JQiUCAIuh952phlSVFS0BBbuNfQzHX3/JdOhU4+HSA3i9ZBojM2GtNrCwsIzxkMpIiLiJ+wIHljF0FF/GzZsaC4uLj6kLuSlHQJCwnZwtL8YPnz4g3jSH8H6ZzbWNP+GyTgNk/X3u3btKmyvqfEbtnUQ8DNMxqOuedXV1Z9gAleAuCTda655BQUFtti42I9BKh0kHWrkxVgsk0FeR3Vl9VYjzTWM0PV1VdXVTckpyTcg3bkx4mjVYPTstuio6HZkgo76s5gjn6ux1dojzaZrmQCLG4OHzM3oWzMs1TqmuQv6sRFpDhCr3Vfbw6JHgWhcg3aYQ3go/Q0PsIhTp07loo1e2a1FH/vtXwcA++1IgtBxPtnhUo3DJMUcjFiIp341JNu9KZDMBIJGwn2tcs8DgZsxIZuQzkmpLBPizr+mhqa6xIQEEyxOLBNBdqvd4RgMt68Ca7TPmOYusDzlMTHRn+GBEIVJrlxSG5SQhoeBVjdq1KhSXHb4c5gdH8XgKKPF7lCEB4n+CRbUWlVV9QncRlq3DmWQcBjWsgYApGRmZjrfCACiwWCbdNThfAhAV/0h7VG73f4ZCD4Z6+eTGRkZj8yePZu/Yajy5aU9Av2VhO1HEcQrEOgUiFePSWjHxONPmHX4rhhsOBDHCEw+tTPp3h1YDRPKW9zTeW2OitRhbU0Rlgg1mUG++AhzhB4RYeZmBrlFtQ5itzvYH40+ITMjGhrgEcMUaq2qHqa5i0m3mBwOe5TmaNOxm/AfFcXExFS66xrX6FsjLDzKOaKxbnTWDWK2YlwRIHGHMYPQx1H+h8DjMWBWBSu7CPW8O2vWrOlIlz83BDh53JLk0hUBbEBshEtmxoR6R9f1USDTYtd8xpGnY/OiFYR1TlKmU44cOWLCBGzFZNVhoZjUTnSQBhNVa2loM5KwcqUwZ7QyaWgrrZ3y2QtYvxiTrg9DnVpydHSFSsYhCPqg2e1t9ag0t5dWR1NKpDnSgR3WM8yKtkbTcpNgo3jtSUDAGIwrFm3VVFZW8iGk1EBIDe2ZQESPc+i55547vXHjRq6hR9vt9vuBIb8sajWOPJQVVpXIi0LAI4AqR160qfgHKzEWbt8+WLtJIEUp3Ku7p0+f/n1XeEhCTNRWuF8e8cRE5YTVPv30U9diKt7qaNXQhgmT2iBwa1Nj04dWa2xMQ1PTNUrJ7QWT+mr0Iw3G8IsCrCtVNuiBiW6KMEcmfXTokEfXr6m+aYIOm2yz1b7DMnab/QgeLMdTU1PTQewfMs1d4GpPQntWPEg+xgPC6QUgXce4PLqjrnXAKtZAVqB8CTaALDab7WrXfIlrmsdJI8BoGrfuQbpHQK4yuF6LVq5c2Qgy3okJGYn0VXiiqzUcscIEY9AKPYbtBORtxXqvFZPdzni7TFy0tDpI0NYW7ZwFa3Y4Vtlqbaa0tNQHQY4hUHP+4TrGEhvzLNzWCJNJX21koG4Na1IdYYKpuenRMWPGmI08hjjfvCI1LS0LfW806+ZdTCOpQIo11dXVESDw4+5leH4I4nAt3JKUlLSCZQyBFazDmDTU1+HNBuhjBxcVDyoHLL4O/QajDgnbEBAStuHg/or5pa/Gkz4NLtgCTNZaKuDI4WVMvhIQ82JM3vuZRomNVXyMwqKs3cRn3llimJGnWa3WDnhHRZh5vmFurm+mupI9O3f+sb6pIb+xsWFQckrKHyfccss0HLJfPjlj8o2arr2SlJAwvKWlOX97wXbnr+KClNHp6elWHO6/gf5ckj4kff9tt92WOWnSpDEo/0BSSvJuWC9TRUX54u3btx9WDeHl8ssvzwMxDoBsV8AivgQrfyMcgMunTJkyHy7ofvQ7CXU/9swzz7wFdecfyP4m8rgIXYJzx9vnz5+fA/LBKdY4zn133HHHkpkzZ/4I54tXzJkz5z6MffqZM2fKRowY8Yqzku5FBrxWh0kx4EfcjQFOmDDhAZDneqjyOGIfQucfnuZ3weKVwnrcjUl2IzNo6UpLSxsx0ay8dhUQNgqWMhbkjXZNN+ItdoelFT4p8iONNIa7i0vubmxsvO905elYa2zMmtg466vNjS3bExITh52uOn1vYUHhL6lnCB4KOtafZljrw1qrNiEqyhIDP2cVvM+90RbLfc3NTab6hroZOHdca5RhyB3grVu3Tj1x4sQyuLijW1tbebzxKvr9FKxXDYg7dcuWLY9R1002YdwHoTMMmKw/duzYKmzAJFAH5E0HfgvtdvtLqO916DyM/h2Ctb0O7Z0z+VQWwW0SEDogAKuwIioqKgFrmdvcM/Pz86twFjhy3759CThHPMB8HGq/jQmWDPP5I167Cg+2MZGvKCsrG4SyHVyx8tLSmXW1dUnPP//8QddyjO8s2rlu186SEa12x4/qG+tujDSbr31uY96FxduL2xGJuvv37/+ipvrMsEu+esk9mzdvPrJta8E1jfWNVzY3Nd3Q5HBcA9IO37lj54vU9SCte/fuXYzxDgFZeIZ4Awh0Gfp7CdL2etDXcPheB/Je19jYeDXGd+2gQYO+AV3uimp5eXlXwXqmY607DvXc2NTUdCl0r8RGzT881RXuaWIJPcyAAmx2wAXl2Z6HXGdSa25urnrbGlOgb8fEPOdTMvGsMM9498rZJGfAdOY7EzxE+A6cXUW73oDeex6ynUmsy7VPIPbnINebe4uL33cqdRFBmffQ3ptFRUWfd6GqskH4d0HW/wIBnS4uM9DXapDuVbhDSFoLAAACBElEQVTwByEdd6SoJKIQEBIqGORFEOg7BISETuwlIgj0DQJCwr7BXVoVBJwICAmdUEhEEOgbBISEfYO7tCoIOBEQEjqhkEj4IBBaIxUShtb9kN6EIQJCwjC86TLk0EJASBha90N6E4YICAnD8KbLkEMLASFhMO+H1C0IdAMBIWE3QBIVQSCYCAgJg4mu1C0IdAMBIWE3QBIVQSCYCAgJg4mu1B0+CPgxUiGhH+BJUUEgEAgICQOBotQhCPiBgJDQD/CkqCAQCASEhIFAUeoQBPxAQEjoB3h9UVTaHHgICAkH3j2VEfUzBISE/eyGSXcHHgJCwoF3T2VE/QwBIWE/u2HS3YGHQGckHHgjlREJAiGKgJAwRG+MdCt8EBAShs+9lpGGKAJCwhC9MdKt8EFASBg+97qzkUp6HyMgJOzjGyDNCwJCQpkDgkAfIyAk7OMbIM0LAkJCmQOCQB8j0Isk7OORSvOCQIgiICQM0Rsj3QofBISE4XOvZaQhioCQMERvjHQrfBAQEobPve7FkUpTviAgJPQFLdEVBIKAgJAwCKBKlYKALwgICX1BS3QFgSAgICQMAqhSpSDgCwL9m4S+jFR0BYEQRUBIGKI3RroVPggICcPnXstIQxQBIWGI3hjpVvggICQMn3vdv0c6gHsvJBzAN1eG1j8QEBL2j/skvRzACPw/AAAA//8QZv1dAAAABklEQVQDAIJ0ZQ3E8TYNAAAAAElFTkSuQmCC" style="width:30px;height:30px;object-fit:contain;display:block;filter:brightness(0.9);" alt="Xmobots">
+      <img src="data:image/png;base64,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" style="width:30px;height:30px;object-fit:contain;display:block;filter:brightness(0.9);" alt="Xmobots">
     </div>
     <div>
       <div class="topbar-sup">Controle Operacional</div>
-      <div class="topbar-title">Painel SC &mdash; PO</div>
+      <div class="topbar-title">Painel de Compras</div>
       <div class="topbar-year">2026</div>
     </div>
   </div>
@@ -173,9 +209,16 @@ tbody tr:hover{background:#F6F8FC;}
 <nav class="tab-nav">
   <button class="tab-btn active" onclick="switchTab('aba1',this)">SC em Aberto</button>
   <button class="tab-btn" onclick="switchTab('aba2',this)">Visao Geral POs</button>
+  <button class="tab-btn" onclick="switchTab('aba3',this)">Atendimento</button>
+  <button class="tab-btn" onclick="switchTab('aba4',this)">Prazo Médio (PMP)</button>
+  <button class="tab-btn" onclick="switchTab('aba5',this)">Impacto Financeiro</button>
+  <button class="tab-btn" onclick="switchTab('aba6',this)">Retrabalho SCs</button>
+  <button class="tab-btn" onclick="switchTab('aba7',this)">Fretes</button>
 </nav>
 
-<!-- ===== ABA 1 ===== -->
+<!-- ==============================================
+     ABA 1: SC em Aberto
+     ============================================== -->
 <div id="aba1" class="tab-panel active">
 <main class="page">
   <div class="section-label">Indicadores Gerais</div>
@@ -222,7 +265,7 @@ tbody tr:hover{background:#F6F8FC;}
   </div>
 
   <div class="section-label">Detalhamento por Numero de SC</div>
-  <div class="table-card">
+  <div class="table-card table-scroll">
     <div class="table-toolbar">
       <span class="table-toolbar-title">SCs Agrupadas &mdash; ordenadas por urgencia</span>
       <div class="table-toolbar-right">
@@ -238,7 +281,7 @@ tbody tr:hover{background:#F6F8FC;}
         <span class="table-result-count" id="rc1">12 SCs · 29 itens</span>
       </div>
     </div>
-    <div class="table-scroll"><table>
+    <div><table>
       <thead><tr><th>Numero SC</th><th>Comprador</th><th>Qtd Itens</th><th>Aging (dias)</th><th>Classificacao (SLA)</th></tr></thead>
       <tbody id="tb1"></tbody>
     </table></div>
@@ -247,27 +290,22 @@ tbody tr:hover{background:#F6F8FC;}
 </main>
 </div>
 
-<!-- ===== ABA 2 ===== -->
+<!-- ==============================================
+     ABA 2: Visão Geral POs
+     ============================================== -->
 <div id="aba2" class="tab-panel">
 <main class="page">
-
-  <!-- KPI row -->
   <div class="po-kpi-row">
-    <!-- Adicionada a classe po-kpi-card base que ja inclui a borda azul -->
     <div class="po-kpi-card">
       <div class="po-kpi-label">TOTAL EM ABERTO</div>
       <div class="po-kpi-value" id="kTotal2">153</div>
       <div class="po-kpi-sub">Linhas pendentes</div>
     </div>
-    
-    <!-- Adicionada classe accent-purple para a borda roxa -->
     <div class="po-kpi-card accent-purple">
       <div class="po-kpi-label">MAIOR VOLUME</div>
       <div class="po-kpi-value" id="kTop2" style="font-size: 34px; padding-top: 6px;">Thays</div>
       <div class="po-kpi-sub" id="kTopSub2">42 itens - 27.5% do total</div>
     </div>
-    
-    <!-- Adicionada classe accent-teal para a borda teal/verde-azulado -->
     <div class="po-kpi-card po-kpi-wide accent-teal">
       <div class="po-kpi-label">STATUS</div>
       <div class="po-status-row" id="kStatus2">
@@ -281,8 +319,6 @@ tbody tr:hover{background:#F6F8FC;}
         </span>
       </div>
     </div>
-
-    <!-- Adicionada a classe po-kpi-card base para a borda azul e select box -->
     <div class="po-kpi-card po-kpi-mes">
       <div class="po-kpi-label">FILTRAR POR MES</div>
       <select id="selMes" class="po-mes-select" onchange="applyF2()">
@@ -297,13 +333,11 @@ tbody tr:hover{background:#F6F8FC;}
     </div>
   </div>
 
-  <!-- Charts row -->
   <div class="po-charts-row">
     <div class="po-chart-card">
       <div class="po-chart-title">ABERTOS POR COMPRADOR</div>
       <div class="po-chart-wrap"><canvas id="barComp2"></canvas></div>
       <div class="po-chart-legend">
-        <!-- Legenda usando as cores do painel principal (Verde e Azul) -->
         <span class="po-leg-item"><span class="po-leg-dot" style="background:var(--green)"></span>APROVADO</span>
         <span class="po-leg-item"><span class="po-leg-dot" style="background:var(--blue)"></span>PARCIAL</span>
       </div>
@@ -312,16 +346,14 @@ tbody tr:hover{background:#F6F8FC;}
       <div class="po-chart-title">ABERTOS POR MÊS DE EMISSÃO</div>
       <div class="po-chart-wrap"><canvas id="barMes2"></canvas></div>
       <div class="po-chart-legend">
-        <!-- Legenda usando as cores do painel principal (Verde e Azul) -->
         <span class="po-leg-item"><span class="po-leg-dot" style="background:var(--green)"></span>APROVADO</span>
         <span class="po-leg-item"><span class="po-leg-dot" style="background:var(--blue)"></span>PARCIAL</span>
       </div>
     </div>
   </div>
 
-  <!-- Table -->
   <div class="section-label">Detalhe por Comprador</div>
-  <div class="table-card">
+  <div class="table-card table-scroll">
     <div class="tbl-toolbar-col">
       <div class="tbl-toolbar-row">
         <div class="filter-bar">
@@ -346,7 +378,7 @@ tbody tr:hover{background:#F6F8FC;}
         </div>
       </div>
     </div>
-    <div class="table-scroll"><table>
+    <div><table>
       <thead><tr><th>Numero PO</th><th>Item</th><th>Comprador</th><th>Descricao</th><th>Dt. Prev. Entrega</th><th>Status PO</th></tr></thead>
       <tbody id="tb2"></tbody>
     </table></div>
@@ -355,228 +387,440 @@ tbody tr:hover{background:#F6F8FC;}
 </main>
 </div>
 
+<!-- ==============================================
+     ABA 3: Atendimento
+     ============================================== -->
+<div id="aba3" class="tab-panel">
+<main class="page s2-scope">
+  <div class="sec">Visão Geral — Jan a Jun/26</div>
+  <div class="kpi-row c5">
+    <div class="kpi"><div class="kpi-lbl">Volume 2026</div><div class="kpi-val g">R$ 27.7M</div><div class="kpi-sub"><span class="var-pos">+66.7%</span> vs 2025</div></div>
+    <div class="kpi"><div class="kpi-lbl">Linhas 2026</div><div class="kpi-val b">6,099</div><div class="kpi-sub"><span class="var-pos">+34.1%</span> vs 2025</div></div>
+    <div class="kpi"><div class="kpi-lbl">Delta Médio 2026</div><div class="kpi-val g">2.93 d</div><div class="kpi-sub pos">↓ 0.59 d vs 2025 (3.52 d)</div></div>
+    <div class="kpi"><div class="kpi-lbl">Melhor Delta</div><div class="kpi-val g">THAYS</div><div class="kpi-sub pos">1.36 d média 2026</div></div>
+    <div class="kpi"><div class="kpi-lbl">Maior Volume</div><div class="kpi-val b">THAYS</div><div class="kpi-sub">32.4% do total 2026</div></div>
+  </div>
+  <div class="grid2">
+    <div class="card"><div class="card-title">Volume Comprado — 2025 vs 2026 (R$)</div><div style="position:relative;height:190px"><canvas id="cVol"></canvas></div></div>
+    <div class="card"><div class="card-title">Linhas Emitidas — 2025 vs 2026</div><div style="position:relative;height:190px"><canvas id="cLin"></canvas></div></div>
+  </div>
+  <div class="grid2">
+    <div class="card"><div class="card-title">Delta Médio Mensal 2026 (dias)</div><div style="position:relative;height:180px"><canvas id="cDelta"></canvas></div><p class="note">Linha = referência 2025 (3.52 d)</p></div>
+    <div class="card">
+      <div class="card-title">Delta por Comprador x Mês 2026 (dias)</div>
+      <div style="display:grid;grid-template-columns:78px repeat(6,1fr);font-size:9px;color:var(--s2-gray);font-weight:700;padding-bottom:4px;" id="hmHdr"></div>
+      <div style="display:grid;grid-template-columns:78px repeat(6,1fr);gap:3px;" id="hmBody"></div>
+    </div>
+  </div>
+</main>
+</div>
+
+<!-- ==============================================
+     ABA 4: Prazo Médio (PMP)
+     ============================================== -->
+<div id="aba4" class="tab-panel">
+<main class="page s2-scope">
+  <div class="sec">Prazo Médio de Pagamento <span>| Materiais · Meta ≥ 35 DDL</span></div>
+  <div class="kpi-row c4">
+    <div class="kpi"><div class="kpi-lbl">PMP Geral 2026</div><div class="kpi-val r">30.6 d</div><div class="kpi-sub neg">⚠ Meta 35 d</div></div>
+    <div class="kpi"><div class="kpi-lbl">% Faturado (pós NF)</div><div class="kpi-val g">98.2%</div><div class="kpi-sub pos">Concentração em 28 DDL</div></div>
+    <div class="kpi"><div class="kpi-lbl">Antecipado + À Vista</div><div class="kpi-val a">1.8%</div><div class="kpi-sub warn">⚠ Reduz PMP</div></div>
+    <div class="kpi"><div class="kpi-lbl">Volume Avaliado</div><div class="kpi-val b">R$ 11.8M</div><div class="kpi-sub">Jan–Jun/26</div></div>
+  </div>
+  <div class="grid2">
+    <div class="card"><div class="card-title">PMP Mensal vs Meta (dias)</div><div style="position:relative;height:195px"><canvas id="cPMP"></canvas></div></div>
+    <div class="card"><div class="card-title">PMP por Comprador vs Meta</div><div class="g-wrap" id="gaugePMP"></div></div>
+  </div>
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">Top 20 Fornecedores — Pior PMP para Negociar (dias)</div>
+    <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;" id="pmpFornTabs"></div>
+    <div id="pmp-forn-wrap"></div>
+    <p class="note">Ranking por contribuição ao PMP (Volume × Gap vs Meta) · Fornecedores que mais puxam o PMP geral · Materiais 2026 · Meta ≥ 35 DDL</p>
+  </div>
+  <div class="grid2">
+    <div class="card"><div class="card-title">Composição por Forma de Pagamento (%)</div><div style="position:relative;height:185px"><canvas id="cPMPCat"></canvas></div></div>
+    <div class="card"><div class="card-title">Evolução PMP por Comprador (dias)</div><div style="position:relative;height:185px"><canvas id="cPMPComp"></canvas></div></div>
+  </div>
+</main>
+</div>
+
+<!-- ==============================================
+     ABA 5: Impacto Financeiro
+     ============================================== -->
+<div id="aba5" class="tab-panel">
+<main class="page s2-scope">
+  <div class="sec">Acompanhamento de Preços vs IPCA <span>| CC 1410001 + 1206007 · Jan–Jun/26</span></div>
+  <div class="kpi-row c4">
+    <div class="kpi"><div class="kpi-lbl">Impacto Acumulado 2026</div><div class="kpi-val a">+R$ 114.2k</div><div class="kpi-sub warn">⚠ Custo adicional</div></div>
+    <div class="kpi"><div class="kpi-lbl">Melhor Mês 2026</div><div class="kpi-val g">Abr/26</div><div class="kpi-sub pos">R$ -22.7k 🟢</div></div>
+    <div class="kpi"><div class="kpi-lbl">Pior Mês 2026</div><div class="kpi-val r">Mar/26</div><div class="kpi-sub neg">+R$ 128.0k 🔴</div></div>
+    <div class="kpi"><div class="kpi-lbl">Representatividade</div><div class="kpi-val b">+0.41%</div><div class="kpi-sub">do volume total 2026</div></div>
+  </div>
+  <div class="grid2">
+    <div class="card"><div class="card-title">Impacto Mensal 2026 (R$)</div><div style="position:relative;height:195px"><canvas id="cImpacto"></canvas></div></div>
+    <div class="card"><div class="card-title">Acumulado 2026 (R$)</div><div style="position:relative;height:195px"><canvas id="cAcum"></canvas></div></div>
+  </div>
+  <div class="card"><div class="card-title">Impacto por Comprador — Jan a Jun/26 (R$)</div><div style="position:relative;height:220px"><canvas id="cImpComp"></canvas></div></div>
+</main>
+</div>
+
+<!-- ==============================================
+     ABA 6: Retrabalho SCs
+     ============================================== -->
+<div id="aba6" class="tab-panel">
+<main class="page s2-scope">
+  <div class="sec">Retrabalho em SCs <span>| Mesmo produto em 2+ SCs distintas · CC 1410001 + 1206007</span></div>
+  <div class="kpi-row c4">
+    <div class="kpi"><div class="kpi-lbl">Melhor Mês</div><div class="kpi-val g">Fev/26</div><div class="kpi-sub pos">2.6% 🟢</div></div>
+    <div class="kpi"><div class="kpi-lbl">Pior Mês</div><div class="kpi-val r">Mar/26</div><div class="kpi-sub neg">32.4% 🔴</div></div>
+    <div class="kpi"><div class="kpi-lbl">Menor Retrabalho</div><div class="kpi-val g">CATIA</div><div class="kpi-sub pos">0.0% em Jun/26</div></div>
+    <div class="kpi"><div class="kpi-lbl">Atenção Jun/26</div><div class="kpi-val r">LARISSA</div><div class="kpi-sub neg">3.6% 🔴</div></div>
+  </div>
+  <div class="grid2">
+    <div class="card"><div class="card-title">% Produtos com Retrabalho por Mês</div><div style="position:relative;height:185px"><canvas id="cRetMes"></canvas></div></div>
+    <div class="card"><div class="card-title">Evolução por Comprador (%)</div><div style="position:relative;height:185px"><canvas id="cRetComp"></canvas></div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Detalhe por Mês</div>
+    <div class="ret-tabs" id="retTabs"></div>
+    <div id="ret-detail-wrap"></div>
+  </div>
+</main>
+</div>
+
+<!-- ==============================================
+     ABA 7: Fretes
+     ============================================== -->
+<div id="aba7" class="tab-panel">
+<main class="page s2-scope">
+  <div class="sec">Análise de Fretes <span>| CTEs por mês de emissão</span></div>
+  <div class="kpi-row c4">
+    <div class="kpi"><div class="kpi-lbl">Valor Total de Fretes</div><div class="kpi-val a">R$ 7.5k</div><div class="kpi-sub">Jan a Jun/26</div></div>
+    <div class="kpi"><div class="kpi-lbl">% sobre Compras</div><div class="kpi-val a">2.49%</div><div class="kpi-sub warn">R$ 0.30M em mercadorias</div></div>
+    <div class="kpi"><div class="kpi-lbl">CTEs Processados</div><div class="kpi-val b">14</div><div class="kpi-sub">Conhecimentos</div></div>
+    <div class="kpi"><div class="kpi-lbl">Fornecedores / Transp.</div><div class="kpi-val b">11 / 3</div><div class="kpi-sub">Remetentes / Transp.</div></div>
+  </div>
+  <div class="grid2">
+    <div class="card"><div class="card-title">Frete Mensal (R$) e % sobre Compras</div><div style="position:relative;height:200px"><canvas id="cFretMes"></canvas></div></div>
+    <div class="card"><div class="card-title">Top 8 Transportadoras (R$)</div><div style="position:relative;height:200px"><canvas id="cFretTransp"></canvas></div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Top 20 Fornecedores por Valor de Frete</div>
+    <div id="rank-fretes-wrap"></div>
+    <p class="note">% Repr. = participação no total · % Frete/Merc. = frete sobre mercadoria</p>
+  </div>
+</main>
+</div>
+
+<!-- ==============================================
+     SCRIPTS
+     ============================================== -->
 <script>
-var D1=[{"sc": "46239", "comprador": "Ariesa", "qtd": 1, "dias": 7, "classificacao": "5 a 7 dias"}, {"sc": "46245", "comprador": "Catia", "qtd": 1, "dias": 6, "classificacao": "5 a 7 dias"}, {"sc": "46272", "comprador": "Catia", "qtd": 1, "dias": 6, "classificacao": "5 a 7 dias"}, {"sc": "46277", "comprador": "Larissa", "qtd": 10, "dias": 5, "classificacao": "5 a 7 dias"}, {"sc": "46284", "comprador": "Catia", "qtd": 9, "dias": 5, "classificacao": "5 a 7 dias"}, {"sc": "46311", "comprador": "Ariesa", "qtd": 1, "dias": 1, "classificacao": "Menos que 2 dias"}, {"sc": "46317", "comprador": "Ariesa", "qtd": 1, "dias": 1, "classificacao": "Menos que 2 dias"}, {"sc": "155", "comprador": "Ariesa", "qtd": 1, "dias": 0, "classificacao": "Menos que 2 dias"}, {"sc": "46322", "comprador": "Maycon", "qtd": 1, "dias": 0, "classificacao": "Menos que 2 dias"}, {"sc": "46327", "comprador": "Ariesa", "qtd": 1, "dias": 0, "classificacao": "Menos que 2 dias"}, {"sc": "46328", "comprador": "Maycon", "qtd": 1, "dias": 0, "classificacao": "Menos que 2 dias"}, {"sc": "46330", "comprador": "Ariesa", "qtd": 1, "dias": 0, "classificacao": "Menos que 2 dias"}];
-
-var D2=[{"po": "35383", "item": "1", "comprador": "Maycon", "descricao": "LOCACAO DE BENS MOVEIS/MAQUINAS E EQUIPAMENTOS", "status": "Aprovado", "mes": "2025-01", "dt_entrega": "14/01/2025"}, {"po": "26148", "item": "7", "comprador": "Larissa", "descricao": "ROUTERBOARD 5 GHZ MODELO RB912UAG-5HPND", "status": "Aprovado", "mes": "2025-02", "dt_entrega": "06/02/2025"}, {"po": "34681", "item": "1", "comprador": "Maycon", "descricao": "AVGAS", "status": "Atendido Parcial", "mes": "2026-04", "dt_entrega": "23/04/2026"}, {"po": "34351", "item": "1", "comprador": "Ariesa", "descricao": "SUPORTE PCI COM LUPA AUMENTO 2,5 HL-S10 HIKARI", "status": "Atendido Parcial", "mes": "2026-04", "dt_entrega": "30/04/2026"}, {"po": "34616", "item": "1", "comprador": "Ariesa", "descricao": "FOLDER", "status": "Atendido Parcial", "mes": "2026-05", "dt_entrega": "01/05/2026"}, {"po": "33772", "item": "2", "comprador": "Larissa", "descricao": "GERADOR - CONTORNO BASE GERADOR - SPAD 75A", "status": "Atendido Parcial", "mes": "2026-05", "dt_entrega": "29/05/2026"}, {"po": "34209", "item": "25", "comprador": "Larissa", "descricao": "BERCO TREM DE POUSO DIREITO T25 - SPAD75", "status": "Aprovado", "mes": "2026-05", "dt_entrega": "29/05/2026"}, {"po": "34209", "item": "44", "comprador": "Larissa", "descricao": "CARRINHO DRONE T25P - SUPORTE BERCO DIREITO - SPAD 75A", "status": "Aprovado", "mes": "2026-05", "dt_entrega": "29/05/2026"}, {"po": "34209", "item": "46", "comprador": "Larissa", "descricao": "TRILHO INTERNO T20-T25 - TRILHO MOVIMENTACAO - SPAD 75A", "status": "Aprovado", "mes": "2026-05", "dt_entrega": "29/05/2026"}, {"po": "34209", "item": "26", "comprador": "Larissa", "descricao": "BERCO TREM DE POUSO ESQUERDO T25 - SPAD75", "status": "Aprovado", "mes": "2026-05", "dt_entrega": "29/05/2026"}, {"po": "34209", "item": "42", "comprador": "Larissa", "descricao": "CARRINHO DRONE T20P E T25P - ALCA DE MOVIMENTACAO - SPAD 75A", "status": "Aprovado", "mes": "2026-05", "dt_entrega": "29/05/2026"}, {"po": "34209", "item": "47", "comprador": "Larissa", "descricao": "TRILHO INTERNO T20-T25 - BATENTE VERTICAL CARRINHO - SPAD75A", "status": "Aprovado", "mes": "2026-05", "dt_entrega": "29/05/2026"}, {"po": "34209", "item": "2", "comprador": "Catia", "descricao": "SPAD75A-05-01-00-001", "status": "Atendido Parcial", "mes": "2026-05", "dt_entrega": "29/05/2026"}, {"po": "34209", "item": "7", "comprador": "Catia", "descricao": "BERCO TREM DE POUSO ESQUERDO T20-T40-T50 - SPAD75", "status": "Aprovado", "mes": "2026-05", "dt_entrega": "29/05/2026"}, {"po": "34209", "item": "5", "comprador": "Catia", "descricao": "TRILHO INTERNO T40-T50 - TRILHO MOVIMENTACAO - SPAD 75A", "status": "Aprovado", "mes": "2026-05", "dt_entrega": "29/05/2026"}, {"po": "34209", "item": "6", "comprador": "Catia", "descricao": "BERCO TREM DE POUSO DIREITO T20-T40-T50 - SPAD75", "status": "Aprovado", "mes": "2026-05", "dt_entrega": "29/05/2026"}, {"po": "34209", "item": "11", "comprador": "Catia", "descricao": "SPAD 75 - MOVIMENTACAO - BATENTE FRONTAL CARRO T40-T50", "status": "Aprovado", "mes": "2026-05", "dt_entrega": "29/05/2026"}, {"po": "34209", "item": "12", "comprador": "Catia", "descricao": "TRILHO INTERNO T40-T50 - BATENTE VERTICAL CARRINHO - SPAD75A", "status": "Aprovado", "mes": "2026-05", "dt_entrega": "29/05/2026"}, {"po": "34628", "item": "18", "comprador": "Thays", "descricao": "TRAVA POSTERIOR SUP CONTROLES", "status": "Aprovado", "mes": "2026-05", "dt_entrega": "29/05/2026"}, {"po": "35179", "item": "2", "comprador": "Maycon", "descricao": "FILTRO CABINE TITANO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "10/06/2026"}, {"po": "35179", "item": "4", "comprador": "Maycon", "descricao": "GRANADA HIGIENIZADOR DE AR CONDICIONADO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "10/06/2026"}, {"po": "35179", "item": "1", "comprador": "Maycon", "descricao": "FILTRO CABINE TITANO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "10/06/2026"}, {"po": "35179", "item": "3", "comprador": "Maycon", "descricao": "FILTRO CABINE TITANO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "10/06/2026"}, {"po": "35444", "item": "1", "comprador": "Maycon", "descricao": "ENGATE CARRETA MACHO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "12/06/2026"}, {"po": "34943", "item": "24", "comprador": "Catia", "descricao": "CHICOTE ILUMINACAO SPAD75-A", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "15/06/2026"}, {"po": "34943", "item": "26", "comprador": "Catia", "descricao": "CHICOTE AUTOMOTIVO SPAD75-A", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "15/06/2026"}, {"po": "35104", "item": "2", "comprador": "Thays", "descricao": "HASTE DOBRADA LE C/ BUCHA PINO INDEXADOR", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "15/06/2026"}, {"po": "35104", "item": "10", "comprador": "Thays", "descricao": "CAIXA PRINCIPAL - BARRA TRAVA TANQUE - SPAD 75A", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "15/06/2026"}, {"po": "35104", "item": "1", "comprador": "Thays", "descricao": "PONTA DE EIXO CARRO T70", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "15/06/2026"}, {"po": "34606", "item": "1", "comprador": "Maycon", "descricao": "CONCRETO USINADO FCK 20", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "16/06/2026"}, {"po": "35180", "item": "1", "comprador": "Maycon", "descricao": "MOTOR DE PARTIDA DE VEICULO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "16/06/2026"}, {"po": "35325", "item": "1", "comprador": "Maycon", "descricao": "PROTETOR FLEXIVEL - SERIE FEC - 12200B", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "16/06/2026"}, {"po": "34669", "item": "3", "comprador": "Catia", "descricao": "GUARDA SOL", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "19/06/2026"}, {"po": "35571", "item": "1", "comprador": "Maycon", "descricao": "ENGATE CARRETA MACHO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "22/06/2026"}, {"po": "35659", "item": "1", "comprador": "Maycon", "descricao": "RASPADOR DI 1.1/4'' X DE 1.5/8'' X H 3/16'' JOINSEAL - D-1250", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "22/06/2026"}, {"po": "35855", "item": "2", "comprador": "Larissa", "descricao": "ASSINATURA LINKEDIN PREMIUM", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "23/06/2026"}, {"po": "35855", "item": "3", "comprador": "Larissa", "descricao": "ASSINATURA LINKEDIN PREMIUM", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "23/06/2026"}, {"po": "35855", "item": "1", "comprador": "Larissa", "descricao": "ASSINATURA LINKEDIN PREMIUM", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "23/06/2026"}, {"po": "35855", "item": "4", "comprador": "Larissa", "descricao": "ASSINATURA LINKEDIN PREMIUM", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "23/06/2026"}, {"po": "35531", "item": "3", "comprador": "Ariesa", "descricao": "SPRAY TEKBOND USO GERAL PRETO FOSCO 350 ML", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "25/06/2026"}, {"po": "34383", "item": "1", "comprador": "Larissa", "descricao": "LOCACAO DE BENS", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35308", "item": "1", "comprador": "Maycon", "descricao": "DRYWALL", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35248", "item": "8", "comprador": "Thays", "descricao": "CANTONEIRA DA AREA DE INSUMOS E GERADOR", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35248", "item": "3", "comprador": "Thays", "descricao": "SUPORTE DISPERSOR T25", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35248", "item": "5", "comprador": "Thays", "descricao": "LATERAL PRATELEIRA MENOR T70", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35248", "item": "8", "comprador": "Thays", "descricao": "SUPORTE DISPERSOR T70 - METALURGICA", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35248", "item": "1", "comprador": "Thays", "descricao": "CARRO DRONE T70", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35248", "item": "2", "comprador": "Thays", "descricao": "CARRO TRANSPORTE T25", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35248", "item": "7", "comprador": "Thays", "descricao": "CHAPA DE ENCOSTO BATERIA", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35553", "item": "1", "comprador": "Maycon", "descricao": "LOCACAO DE BENS MOVEIS / IMOVEIS (99.01.01)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35418", "item": "2", "comprador": "Maycon", "descricao": "LAMPADA VIGIA CHIFRINHO DIANTEIRA LD", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35420", "item": "10", "comprador": "Maycon", "descricao": "PORCA FORJADA - 1/2 \" COLDPAC FN - 1/2", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35420", "item": "11", "comprador": "Maycon", "descricao": "PORCA FORJADA - 5/8 \" COLDPAC FN -5/8", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35418", "item": "1", "comprador": "Maycon", "descricao": "CORREIA", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35420", "item": "8", "comprador": "Maycon", "descricao": "PORCA FORJADA -1/4\"  COLDPAC FN -1/4", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35420", "item": "9", "comprador": "Maycon", "descricao": "PORCA FORJADA -  3/8 \" COLDPAC FN -3/8", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35431", "item": "2", "comprador": "Maycon", "descricao": "ELEMENTO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35431", "item": "4", "comprador": "Maycon", "descricao": "OLEO MOTOR 0W30 TITANO/SCUDO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35431", "item": "1", "comprador": "Maycon", "descricao": "ELEMENTO FILTRO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35431", "item": "5", "comprador": "Maycon", "descricao": "BUJAO PDRENAG", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35431", "item": "3", "comprador": "Maycon", "descricao": "FILTRO CABINE TITANO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35431", "item": "6", "comprador": "Maycon", "descricao": "FILTRO OLIO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35445", "item": "1", "comprador": "Maycon", "descricao": "BUJAO PDRENAG", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35445", "item": "2", "comprador": "Maycon", "descricao": "ELEMENTO FILTRO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35445", "item": "3", "comprador": "Maycon", "descricao": "FILTRO OLIO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35445", "item": "4", "comprador": "Maycon", "descricao": "OLEO MOTOR 0W30 TITANO/SCUDO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35526", "item": "1", "comprador": "Maycon", "descricao": "BUJAO PDRENAG", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35526", "item": "2", "comprador": "Maycon", "descricao": "ELEMENTO FILTRO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35526", "item": "3", "comprador": "Maycon", "descricao": "FILTRO OLIO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35526", "item": "5", "comprador": "Maycon", "descricao": "OLEO MOTOR 0W30 TITANO/SCUDO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35664", "item": "1", "comprador": "Catia", "descricao": "BLOCO DE ALUMINIO 6063 7/8'' X 120 MM", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "29/06/2026"}, {"po": "35664", "item": "2", "comprador": "Catia", "descricao": "BLOCO DE ALUMINIO 6063 1/2'' X 120 MM", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "29/06/2026"}, {"po": "34682", "item": "5", "comprador": "Catia", "descricao": "VETRORESINA BRANCA - LATERAL (SEM ADESIVO) - GERADOR 1 - CORTE - SPAD75", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "34682", "item": "6", "comprador": "Catia", "descricao": "VETRORESINA BRANCA - FRENTE (SEM ADESIVO) - GERADOR 2 - CORTE - SPAD75", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "34682", "item": "7", "comprador": "Catia", "descricao": "VETRORESINA BRANCA - SUPERIOR (SEM ADESIVO) - GERADOR 3 - CORTE - SPAD75", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "34682", "item": "12", "comprador": "Catia", "descricao": "VETRORESINA BRANCA - FRENTE (SEM ADESIVO) - CX PRINCIPAL 2 - CORTE - SPAD75", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "34682", "item": "10", "comprador": "Catia", "descricao": "VETRORESINA PRETA V60 - ASSOALHO - PORTA TRASEIRA 2 - CORTE - SPAD75", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "34682", "item": "19", "comprador": "Catia", "descricao": "VETRORESINA PRETA V45- ASSOALHO - GERADOR 4 - CORTE - SPAD75", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "34682", "item": "13", "comprador": "Catia", "descricao": "VETRORESINA PRETA V60- TETO - CX PRINCIPAL 3 - CORTE - SPAD75", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "34682", "item": "14", "comprador": "Catia", "descricao": "VETRORESINA PRETA V45 - PARALAMA LATERAL DIREITA - CX PRINCIPAL 4 - CORTE - SPAD75", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "34682", "item": "16", "comprador": "Catia", "descricao": "VETRORESINA PRETA V45 - ASSOALHO DIREITO - CX PRINCIPAL 6LD - CORTE - SPAD75", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "34682", "item": "17", "comprador": "Catia", "descricao": "VETRORESINA PRETA V45 - ASSOALHO ESQUERDO - CX PRINCIPAL 6LE - CORTE - SPAD75", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "34682", "item": "18", "comprador": "Catia", "descricao": "VETRORESINA PRETA V45- ASSOALHO FRENTE - CHASSI 1 - CORTE - SPAD75", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "34678", "item": "1", "comprador": "Ariesa", "descricao": "SUPORTE PARA DISCO DE MAQUINA DE LIMPEZA", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35130", "item": "1", "comprador": "Ariesa", "descricao": "CHAVEIRO PERSONALIZADO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "34860", "item": "2", "comprador": "Ariesa", "descricao": "LACRE QUIMICO WURTH", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35326", "item": "42", "comprador": "Larissa", "descricao": "BARBED THRU-WALL CONNECTOR ALUMINUM 1.5MM-SCN-PK2", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35111", "item": "1", "comprador": "Ariesa", "descricao": "QUADRO LOUSA MAGNETICO VIDRO 4MM FUNDO BRANCO - 2400X1200MM", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35213", "item": "4", "comprador": "Ariesa", "descricao": "COLA EPOXI 5 MINUTOS ZAP - PT 37", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35213", "item": "5", "comprador": "Ariesa", "descricao": "WIPER WYPALL X70 - 6 ROLOS COM 88 PANOS", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35343", "item": "1", "comprador": "Ariesa", "descricao": "KIT ADESIVOS MINIATURA SPAD200C", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35343", "item": "4", "comprador": "Ariesa", "descricao": "PLAQUETA MINIATURA NAURU100D", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35343", "item": "2", "comprador": "Ariesa", "descricao": "KIT ADESIVOS MINIATURA NAURU100D", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35343", "item": "3", "comprador": "Ariesa", "descricao": "KIT ADESIVOS MINIATURA NAURU500C", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35343", "item": "5", "comprador": "Ariesa", "descricao": "PLAQUETA MINIATURA NAURU500C", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35220", "item": "1", "comprador": "Ariesa", "descricao": "COFFEE BREAK", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35233", "item": "1", "comprador": "Larissa", "descricao": "BARBED THRU-WALL CONNECTOR ALUMINUM 1.5MM-SCN-PK2", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35461", "item": "5", "comprador": "Catia", "descricao": "GIZ LIQUIDO REDONDO 4,5 MM PRETO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35461", "item": "3", "comprador": "Catia", "descricao": "MARCADOR PERMANENTE AZUL", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35461", "item": "4", "comprador": "Catia", "descricao": "MARCARDOR PERMANENTE PRETO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35422", "item": "1", "comprador": "Thays", "descricao": "DRONE DJI MATRICE 400 RTK (DEMO)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35422", "item": "2", "comprador": "Thays", "descricao": "DRONE DJI MATRICE 4TD M4TD", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35351", "item": "1", "comprador": "Ariesa", "descricao": "GAS MISTURA ARG + CO2 10M3", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35351", "item": "2", "comprador": "Ariesa", "descricao": "GAS OXIGENIO ULTRA PURO 10M3", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35704", "item": "4", "comprador": "Ariesa", "descricao": "ORING 3.68 X 1.78", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35704", "item": "7", "comprador": "Ariesa", "descricao": "Macarico Manual Portatil Para Gas Map/propano EOS-757", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35704", "item": "8", "comprador": "Ariesa", "descricao": "REFIL GAS MAP 400G PARA MACARICO PORTATIL", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35704", "item": "1", "comprador": "Ariesa", "descricao": "Arame Aco Mola A1,00mm", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35704", "item": "3", "comprador": "Ariesa", "descricao": "Adesivo Torque Alto 50g Va1 Trabasil", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35704", "item": "5", "comprador": "Ariesa", "descricao": "ORING 6.02 X 2.62", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35704", "item": "6", "comprador": "Ariesa", "descricao": "Tarugo Aco Vnd O1 Redondo A 1/2'' 12.7mm X 1000mm", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35569", "item": "1", "comprador": "Thays", "descricao": "DJI ZENMUSE L3", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35569", "item": "2", "comprador": "Thays", "descricao": "DJI MATRICE 400 - BASE DE CARREGAMENTO BS100", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35569", "item": "4", "comprador": "Thays", "descricao": "DRONE DJI MATRICE 400", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35569", "item": "3", "comprador": "Thays", "descricao": "DJI MATRICE 400 - BATERIA TB100", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35750", "item": "2", "comprador": "Catia", "descricao": "CONTROLE GAMESIR G7 PRO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35646", "item": "1", "comprador": "Ariesa", "descricao": "BRINDE", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "1", "comprador": "Thays", "descricao": "FWM-35311-005 (CANTONEIRA BB1) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "2", "comprador": "Thays", "descricao": "FWM-35311-006 (CANTONEIRA BB6) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "5", "comprador": "Thays", "descricao": "FWM-25311-095 (CANTONEIRA BB3) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "7", "comprador": "Thays", "descricao": "FWM-35311-011 (CANTONEIRA BB7) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "8", "comprador": "Thays", "descricao": "FWM-35311-013 (CANTONEIRA BB8) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "10", "comprador": "Thays", "descricao": "FWM-35311-010 (CANTONEIRA BB10) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "12", "comprador": "Thays", "descricao": "FWM-35311-028 (CANTONEIRA BB25) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "13", "comprador": "Thays", "descricao": "FWM-25311-093 (CANTONEIRA BB11) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "16", "comprador": "Thays", "descricao": "FWM-35311-015 (CANTONEIRA BB13) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "3", "comprador": "Thays", "descricao": "FWM-35311-007 (CANTONEIRA BB2) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "17", "comprador": "Thays", "descricao": "FWM-35311-019 (CANTONEIRA BB15) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "4", "comprador": "Thays", "descricao": "FWM-35311-008 (CANTONEIRA BB5) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "18", "comprador": "Thays", "descricao": "FWM-35311-021 (CANTONEIRA BB16) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "6", "comprador": "Thays", "descricao": "FWM-25311-097 (CANTONEIRA BB4) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "19", "comprador": "Thays", "descricao": "FWM-35311-023 (CANTONEIRA BB17) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "9", "comprador": "Thays", "descricao": "FWM-35311-009 (CANTONEIRA BB9) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "20", "comprador": "Thays", "descricao": "FWM-25311-099 (CANTONEIRA BB20) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "11", "comprador": "Thays", "descricao": "FWM-35311-027 (CANTONEIRA BB24) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "21", "comprador": "Thays", "descricao": "FWM-25311-100 (CANTONEIRA BB23) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "14", "comprador": "Thays", "descricao": "FWM-25311-094 (CANTONEIRA BB12) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "24", "comprador": "Thays", "descricao": "FWM-35311-025 (CANTONEIRA BB18) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "15", "comprador": "Thays", "descricao": "FWM-35311-017 (CANTONEIRA BB14) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "22", "comprador": "Thays", "descricao": "FWM-35311-001 (CANTONEIRA BB19) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "23", "comprador": "Thays", "descricao": "FWM-35311-002 (CANTONEIRA BB22) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "25", "comprador": "Thays", "descricao": "FWM-35311-026 (CANTONEIRA BB21) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35794", "item": "9", "comprador": "Catia", "descricao": "TUBO ACO 1020 D1 3/8\" ESP. 3,35MM", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35821", "item": "1", "comprador": "Catia", "descricao": "VELCRO SEM COLA MACHO/FEMEA 50MM", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35794", "item": "8", "comprador": "Catia", "descricao": "TUBO ACO 1020 D1 1/2\" ESP. 1,5MM", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35821", "item": "2", "comprador": "Catia", "descricao": "FECHO DE ENGATE RAPIDO 35MM FEMEA/MACHO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35794", "item": "10", "comprador": "Catia", "descricao": "TUBO ACO 1020 D1 1/2\" ESP. 3,35MM", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35822", "item": "1", "comprador": "Catia", "descricao": "CHAPA 1200 X 3000 #0.9 MM", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35753", "item": "1", "comprador": "Catia", "descricao": "CHUMBO GRANULADO N11 - 1,5 MM (0,031 GRAMAS) - PACOTE 0,5 KG", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35814", "item": "4", "comprador": "Ariesa", "descricao": "ENGATE RAPIDO PARA MANGUEIRA DE JARDIM", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35814", "item": "3", "comprador": "Ariesa", "descricao": "ESGUICHO PARA MANGUEIRA DE JARDIM", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35923", "item": "1", "comprador": "Larissa", "descricao": "MUCOMUCIL XAROPE 50ML", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35923", "item": "2", "comprador": "Larissa", "descricao": "PROMUN DOG STICKS 160G", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}];
-
-var CORES = {Ariesa:"#D4A017",Catia:"#0EA5A0",Larissa:"#1A7A45",Maycon:"#1B5DBD",Thays:"#6B3FA0"};
-var CLIST = ["Ariesa","Thays","Catia","Maycon","Larissa"];
-
-function bcls1(c) {
-  if (c === "Mais de 7 dias") return "badge br";
-  if (c === "5 a 7 dias") return "badge by";
-  if (c === "2 a 4 dias") return "badge bb";
-  return "badge bg";
-}
-
-function drawT1(comp) {
-  var rows = (comp === "Todos") ? D1 : D1.filter(function(r){ return r.comprador === comp; });
-  var tb = document.getElementById("tb1");
-  if (!rows.length) {
-    tb.innerHTML = "<tr><td colspan='5'><div class='empty-state'>Nenhuma SC encontrada.</div></td></tr>";
-  } else {
-    var html = "";
-    for (var i = 0; i < rows.length; i++) {
-      var r = rows[i];
-      html += "<tr><td><span class='scn'>#" + r.sc + "</span></td>";
-      html += "<td>" + r.comprador + "</td>";
-      html += "<td>" + r.qtd + " " + (r.qtd===1?"item":"itens") + "</td>";
-      html += "<td><span class='dn'>" + r.dias + " " + (r.dias===1?"dia":"dias") + "</span></td>";
-      html += "<td><span class='" + bcls1(r.classificacao) + "'>" + r.classificacao + "</span></td></tr>";
+// --- FUNÇÕES DE NAVEGAÇÃO E RESIZE DE CHARTS ---
+function resizeChartsIn(containerId) {
+  setTimeout(function(){
+    var container = document.getElementById(containerId);
+    if(container) {
+      var canvases = container.querySelectorAll("canvas");
+      canvases.forEach(function(c) {
+        var chart = Chart.getChart(c);
+        if(chart) chart.resize();
+      });
     }
-    tb.innerHTML = html;
-  }
-  var total = 0;
-  for (var i = 0; i < rows.length; i++) total += rows[i].qtd;
-  document.getElementById("rc1").textContent = rows.length + " " + (rows.length===1?"SC":"SCs") + " \u00b7 " + total + " " + (total===1?"item":"itens");
+  }, 50);
 }
-
-function f1(btn) {
-  var btns = document.querySelectorAll("#aba1 .filter-btn");
-  for (var i = 0; i < btns.length; i++) btns[i].classList.remove("active");
-  btn.classList.add("active");
-  drawT1(btn.getAttribute("data-c"));
-}
-
-drawT1("Todos");
-
-var pv = [6, 0, 11, 2, 10];
-var ptot = 29;
-var pcols = CLIST.map(function(c){ return CORES[c]; });
-new Chart(document.getElementById("pie1").getContext("2d"), {
-  type: "doughnut",
-  data: { labels: CLIST, datasets: [{ data: pv, backgroundColor: pcols, borderWidth: 2, borderColor: "#fff" }] },
-  options: { responsive: true, maintainAspectRatio: false, cutout: "62%", plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(ctx){ return " " + ctx.label + ": " + ctx.raw + " itens (" + (ctx.raw/ptot*100).toFixed(1) + "%)"; } } } } }
-});
-var legEl = document.getElementById("leg1");
-for (var i = 0; i < CLIST.length; i++) {
-  var pct = (pv[i]/ptot*100).toFixed(1);
-  var d = document.createElement("div"); d.className = "legend-row";
-  d.innerHTML = "<span class='legend-dot' style='background:" + pcols[i] + "'></span><span class='legend-name'>" + CLIST[i] + "</span><span class='legend-count'>" + pv[i] + "</span><span class='legend-pct'>" + pct + "%</span>";
-  legEl.appendChild(d);
-}
-
-new Chart(document.getElementById("bar1").getContext("2d"), {
-  type: "bar",
-  data: { labels: ["Menos que 2 dias","2 a 4 dias","5 a 7 dias","Mais de 7 dias"], datasets: [{ label: "Itens", data: [7, 0, 22, 0], backgroundColor: ["rgba(26,122,69,0.5)","rgba(27,93,189,0.5)","rgba(212,160,23,0.5)","rgba(192,57,43,0.5)"], borderColor: ["#1A7A45","#1B5DBD","#D4A017","#C0392B"], borderWidth: 1.5, borderRadius: 5, borderSkipped: false, barPercentage: .55 }] },
-  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(ctx){ return " " + ctx.raw + " itens"; } } } }, scales: { y: { beginAtZero: true, grid: { display:true, color: "#E5E7EB" }, ticks: { font: { size: 12 }, color: "#9CA3AF" }, border: { display: false } }, x: { grid: { display:true, color: "#E5E7EB" }, ticks: { font: { size: 12, weight: "600" }, color: "#6B7280" }, border: { display: false } } } }
-});
-
-var barComp2Chart = null;
-var barMes2Chart  = null;
-var selC2active   = "Todos";
-
-// Cores atualizadas para combinar com a Aba 1:
-// APROVADO = Verde
-var COLOR_APROV_BG = "rgba(26,122,69,0.5)";
-var COLOR_APROV_BORDER = "#1A7A45";
-// PARCIAL = Azul
-var COLOR_PARC_BG = "rgba(27,93,189,0.5)";
-var COLOR_PARC_BORDER = "#1B5DBD";
-
-function buildCharts2(data) {
-  var CLIST5 = ["Ariesa","Catia","Larissa","Maycon","Thays"];
-  var compDataArr = [];
-  
-  CLIST5.forEach(function(c) {
-    var aprov = 0, parc = 0;
-    data.forEach(function(r){ if(r.comprador===c){ if(r.status==="Aprovado") aprov++; else parc++; } });
-    var total = aprov + parc;
-    if (total > 0) { 
-      compDataArr.push({ label: c.toUpperCase(), aprov: aprov, parc: parc, total: total });
-    }
-  });
-
-  // Ordena os compradores de forma decrescente com base no volume total
-  compDataArr.sort(function(a, b) {
-    return b.total - a.total;
-  });
-
-  var compLabels = compDataArr.map(function(item) { return item.label; });
-  var compAprov = compDataArr.map(function(item) { return item.aprov; });
-  var compParc = compDataArr.map(function(item) { return item.parc; });
-
-  var mesMap = {};
-  data.forEach(function(r){ if(!mesMap[r.mes]) mesMap[r.mes]={aprov:0,parc:0}; if(r.status==="Aprovado") mesMap[r.mes].aprov++; else mesMap[r.mes].parc++; });
-  var mesKeys = Object.keys(mesMap).sort();
-  var mesLabels = mesKeys.map(function(m){ var p=m.split("-"); var names=["","Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]; return names[+p[1]]+"/"+(p[0].slice(2)); });
-  var mesAprov  = mesKeys.map(function(m){ return mesMap[m].aprov; });
-  var mesParc   = mesKeys.map(function(m){ return mesMap[m].parc; });
-  
-  var makeOpts = function(labels, aprov, parc) {
-    return { type:"bar", data:{ labels:labels, datasets:[
-        { label:"APROVADO", data:aprov, backgroundColor:COLOR_APROV_BG, borderColor:COLOR_APROV_BORDER, borderWidth:1.5, stack:"s" },
-        { label:"PARCIAL",  data:parc,  backgroundColor:COLOR_PARC_BG, borderColor:COLOR_PARC_BORDER, borderWidth:1.5, stack:"s" }
-      ]},
-      options:{ responsive:true, maintainAspectRatio:false,
-        plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:function(ctx){ return " "+ctx.dataset.label+": "+ctx.raw; } } } },
-        scales:{
-          x:{ grid:{display:true, color:"#E5E7EB"}, ticks:{font:{size:11,weight:"700"},color:"#555"}, border:{display:false} },
-          y:{ beginAtZero:true, grid:{display:true, color:"#E5E7EB"}, border:{display:false}, ticks:{display:true, font:{size:11}, color:"#888"} }
-        }
-      }
-    };
-  };
-  
-  if (barComp2Chart) barComp2Chart.destroy();
-  barComp2Chart = new Chart(document.getElementById("barComp2").getContext("2d"), makeOpts(compLabels, compAprov, compParc));
-  
-  if (barMes2Chart) barMes2Chart.destroy();
-  barMes2Chart  = new Chart(document.getElementById("barMes2").getContext("2d"),  makeOpts(mesLabels, mesAprov, mesParc));
-}
-
-function updateKPI2(data) {
-  var total = data.length;
-  var aprov = 0, parc = 0;
-  var byC = {};
-  
-  data.forEach(function(r){ 
-    if(r.status==="Aprovado") aprov++; else parc++; 
-    byC[r.comprador] = (byC[r.comprador]||0) + 1;
-  });
-  
-  document.getElementById("kTotal2").textContent  = total;
-  document.getElementById("kAprov2").textContent  = aprov;
-  document.getElementById("kParcial2").textContent= parc;
-  document.getElementById("rc2").textContent = total+" "+(total===1?"item":"itens")+" encontrado"+(total!==1?"s":"");
-
-  var top = null, topN = 0;
-  for (var k in byC) { 
-    if (byC[k] > topN) { 
-      topN = byC[k]; 
-      top = k; 
-    } 
-  }
-  
-  if (top) {
-    document.getElementById("kTop2").textContent = top;
-    document.getElementById("kTopSub2").textContent = topN + " itens - " + (total>0?(topN/total*100).toFixed(1):0) + "% do total";
-  } else {
-    document.getElementById("kTop2").textContent = "-";
-    document.getElementById("kTopSub2").textContent = "Sem dados";
-  }
-}
-
-function drawT2(data) {
-  var tb = document.getElementById("tb2");
-  if (!data.length) { tb.innerHTML = "<tr><td colspan='6'><div class='empty-state'>Nenhum item encontrado.</div></td></tr>"; return; }
-  var html = "";
-  for (var i = 0; i < data.length; i++) {
-    var r = data[i];
-    var sc = r.status === "Aprovado" ? "badge bg" : "badge bt";
-    var dot = CORES[r.comprador] || "#9CA3AF";
-    html += "<tr><td><span class='scn'>#"+r.po+"</span></td>";
-    html += "<td><span class='dn'>"+r.item+"</span></td>";
-    html += "<td><span style='display:inline-flex;align-items:center;gap:6px'><span style='width:8px;height:8px;border-radius:50%;background:"+dot+";flex-shrink:0'></span>"+r.comprador+"</span></td>";
-    html += "<td class='dc'><span class='dt' title='"+r.descricao+"'>"+r.descricao+"</span></td>";
-    html += "<td><span class='dn'>"+r.dt_entrega+"</span></td>";
-    html += "<td><span class='"+sc+"'>"+r.status+"</span></td></tr>";
-  }
-  tb.innerHTML = html;
-}
-
-function applyF2() {
-  var mes    = document.getElementById("selMes").value;
-  var status = document.getElementById("selS2").value;
-  var chartData = (mes === "Todos") ? D2 : D2.filter(function(r){ return r.mes === mes; });
-  buildCharts2(chartData);
-  var tableData = chartData;
-  if (selC2active !== "Todos") tableData = tableData.filter(function(r){ return r.comprador === selC2active; });
-  if (status !== "Todos")      tableData = tableData.filter(function(r){ return r.status === status; });
-  updateKPI2(tableData);
-  drawT2(tableData);
-}
-
-function f1aba2(btn) {
-  var btns = document.querySelectorAll("#aba2 .filter-btn");
-  for (var i=0;i<btns.length;i++) btns[i].classList.remove("active");
-  btn.classList.add("active");
-  selC2active = btn.getAttribute("data-c");
-  applyF2();
-}
-
-function resetF2() {
-  document.getElementById("selMes").value = "Todos";
-  document.getElementById("selS2").value  = "Todos";
-  selC2active = "Todos";
-  var btns = document.querySelectorAll("#aba2 .filter-btn");
-  for (var i=0;i<btns.length;i++) btns[i].classList.remove("active");
-  document.querySelector("#aba2 .filter-btn").classList.add("active");
-  applyF2();
-}
-
-applyF2();
 
 function switchTab(id, btn) {
   var panels = document.querySelectorAll(".tab-panel");
   for (var i = 0; i < panels.length; i++) panels[i].classList.remove("active");
   var btns = document.querySelectorAll(".tab-btn");
   for (var i = 0; i < btns.length; i++) btns[i].classList.remove("active");
+  
   document.getElementById(id).classList.add("active");
   btn.classList.add("active");
-  if (id === "aba2") { setTimeout(function(){ if(barComp2Chart) barComp2Chart.resize(); if(barMes2Chart) barMes2Chart.resize(); }, 50); }
+  resizeChartsIn(id);
 }
+
+// ==============================================
+// SCRIPT ABA 1 & 2 (ORIGINAL S1)
+// ==============================================
+(function(){
+  var D1=[{"sc": "46239", "comprador": "Ariesa", "qtd": 1, "dias": 7, "classificacao": "5 a 7 dias"}, {"sc": "46245", "comprador": "Catia", "qtd": 1, "dias": 6, "classificacao": "5 a 7 dias"}, {"sc": "46272", "comprador": "Catia", "qtd": 1, "dias": 6, "classificacao": "5 a 7 dias"}, {"sc": "46277", "comprador": "Larissa", "qtd": 10, "dias": 5, "classificacao": "5 a 7 dias"}, {"sc": "46284", "comprador": "Catia", "qtd": 9, "dias": 5, "classificacao": "5 a 7 dias"}, {"sc": "46311", "comprador": "Ariesa", "qtd": 1, "dias": 1, "classificacao": "Menos que 2 dias"}, {"sc": "46317", "comprador": "Ariesa", "qtd": 1, "dias": 1, "classificacao": "Menos que 2 dias"}, {"sc": "155", "comprador": "Ariesa", "qtd": 1, "dias": 0, "classificacao": "Menos que 2 dias"}, {"sc": "46322", "comprador": "Maycon", "qtd": 1, "dias": 0, "classificacao": "Menos que 2 dias"}, {"sc": "46327", "comprador": "Ariesa", "qtd": 1, "dias": 0, "classificacao": "Menos que 2 dias"}, {"sc": "46328", "comprador": "Maycon", "qtd": 1, "dias": 0, "classificacao": "Menos que 2 dias"}, {"sc": "46330", "comprador": "Ariesa", "qtd": 1, "dias": 0, "classificacao": "Menos que 2 dias"}];
+
+  var D2=[{"po": "35383", "item": "1", "comprador": "Maycon", "descricao": "LOCACAO DE BENS MOVEIS/MAQUINAS E EQUIPAMENTOS", "status": "Aprovado", "mes": "2025-01", "dt_entrega": "14/01/2025"}, {"po": "26148", "item": "7", "comprador": "Larissa", "descricao": "ROUTERBOARD 5 GHZ MODELO RB912UAG-5HPND", "status": "Aprovado", "mes": "2025-02", "dt_entrega": "06/02/2025"}, {"po": "34681", "item": "1", "comprador": "Maycon", "descricao": "AVGAS", "status": "Atendido Parcial", "mes": "2026-04", "dt_entrega": "23/04/2026"}, {"po": "34351", "item": "1", "comprador": "Ariesa", "descricao": "SUPORTE PCI COM LUPA AUMENTO 2,5 HL-S10 HIKARI", "status": "Atendido Parcial", "mes": "2026-04", "dt_entrega": "30/04/2026"}, {"po": "34616", "item": "1", "comprador": "Ariesa", "descricao": "FOLDER", "status": "Atendido Parcial", "mes": "2026-05", "dt_entrega": "01/05/2026"}, {"po": "33772", "item": "2", "comprador": "Larissa", "descricao": "GERADOR - CONTORNO BASE GERADOR - SPAD 75A", "status": "Atendido Parcial", "mes": "2026-05", "dt_entrega": "29/05/2026"}, {"po": "34209", "item": "25", "comprador": "Larissa", "descricao": "BERCO TREM DE POUSO DIREITO T25 - SPAD75", "status": "Aprovado", "mes": "2026-05", "dt_entrega": "29/05/2026"}, {"po": "34209", "item": "44", "comprador": "Larissa", "descricao": "CARRINHO DRONE T25P - SUPORTE BERCO DIREITO - SPAD 75A", "status": "Aprovado", "mes": "2026-05", "dt_entrega": "29/05/2026"}, {"po": "34209", "item": "46", "comprador": "Larissa", "descricao": "TRILHO INTERNO T20-T25 - TRILHO MOVIMENTACAO - SPAD 75A", "status": "Aprovado", "mes": "2026-05", "dt_entrega": "29/05/2026"}, {"po": "34209", "item": "26", "comprador": "Larissa", "descricao": "BERCO TREM DE POUSO ESQUERDO T25 - SPAD75", "status": "Aprovado", "mes": "2026-05", "dt_entrega": "29/05/2026"}, {"po": "34209", "item": "42", "comprador": "Larissa", "descricao": "CARRINHO DRONE T20P E T25P - ALCA DE MOVIMENTACAO - SPAD 75A", "status": "Aprovado", "mes": "2026-05", "dt_entrega": "29/05/2026"}, {"po": "34209", "item": "47", "comprador": "Larissa", "descricao": "TRILHO INTERNO T20-T25 - BATENTE VERTICAL CARRINHO - SPAD75A", "status": "Aprovado", "mes": "2026-05", "dt_entrega": "29/05/2026"}, {"po": "34209", "item": "2", "comprador": "Catia", "descricao": "SPAD75A-05-01-00-001", "status": "Atendido Parcial", "mes": "2026-05", "dt_entrega": "29/05/2026"}, {"po": "34209", "item": "7", "comprador": "Catia", "descricao": "BERCO TREM DE POUSO ESQUERDO T20-T40-T50 - SPAD75", "status": "Aprovado", "mes": "2026-05", "dt_entrega": "29/05/2026"}, {"po": "34209", "item": "5", "comprador": "Catia", "descricao": "TRILHO INTERNO T40-T50 - TRILHO MOVIMENTACAO - SPAD 75A", "status": "Aprovado", "mes": "2026-05", "dt_entrega": "29/05/2026"}, {"po": "34209", "item": "6", "comprador": "Catia", "descricao": "BERCO TREM DE POUSO DIREITO T20-T40-T50 - SPAD75", "status": "Aprovado", "mes": "2026-05", "dt_entrega": "29/05/2026"}, {"po": "34209", "item": "11", "comprador": "Catia", "descricao": "SPAD 75 - MOVIMENTACAO - BATENTE FRONTAL CARRO T40-T50", "status": "Aprovado", "mes": "2026-05", "dt_entrega": "29/05/2026"}, {"po": "34209", "item": "12", "comprador": "Catia", "descricao": "TRILHO INTERNO T40-T50 - BATENTE VERTICAL CARRINHO - SPAD75A", "status": "Aprovado", "mes": "2026-05", "dt_entrega": "29/05/2026"}, {"po": "34628", "item": "18", "comprador": "Thays", "descricao": "TRAVA POSTERIOR SUP CONTROLES", "status": "Aprovado", "mes": "2026-05", "dt_entrega": "29/05/2026"}, {"po": "35179", "item": "2", "comprador": "Maycon", "descricao": "FILTRO CABINE TITANO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "10/06/2026"}, {"po": "35179", "item": "4", "comprador": "Maycon", "descricao": "GRANADA HIGIENIZADOR DE AR CONDICIONADO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "10/06/2026"}, {"po": "35179", "item": "1", "comprador": "Maycon", "descricao": "FILTRO CABINE TITANO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "10/06/2026"}, {"po": "35179", "item": "3", "comprador": "Maycon", "descricao": "FILTRO CABINE TITANO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "10/06/2026"}, {"po": "35444", "item": "1", "comprador": "Maycon", "descricao": "ENGATE CARRETA MACHO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "12/06/2026"}, {"po": "34943", "item": "24", "comprador": "Catia", "descricao": "CHICOTE ILUMINACAO SPAD75-A", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "15/06/2026"}, {"po": "34943", "item": "26", "comprador": "Catia", "descricao": "CHICOTE AUTOMOTIVO SPAD75-A", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "15/06/2026"}, {"po": "35104", "item": "2", "comprador": "Thays", "descricao": "HASTE DOBRADA LE C/ BUCHA PINO INDEXADOR", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "15/06/2026"}, {"po": "35104", "item": "10", "comprador": "Thays", "descricao": "CAIXA PRINCIPAL - BARRA TRAVA TANQUE - SPAD 75A", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "15/06/2026"}, {"po": "35104", "item": "1", "comprador": "Thays", "descricao": "PONTA DE EIXO CARRO T70", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "15/06/2026"}, {"po": "34606", "item": "1", "comprador": "Maycon", "descricao": "CONCRETO USINADO FCK 20", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "16/06/2026"}, {"po": "35180", "item": "1", "comprador": "Maycon", "descricao": "MOTOR DE PARTIDA DE VEICULO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "16/06/2026"}, {"po": "35325", "item": "1", "comprador": "Maycon", "descricao": "PROTETOR FLEXIVEL - SERIE FEC - 12200B", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "16/06/2026"}, {"po": "34669", "item": "3", "comprador": "Catia", "descricao": "GUARDA SOL", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "19/06/2026"}, {"po": "35571", "item": "1", "comprador": "Maycon", "descricao": "ENGATE CARRETA MACHO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "22/06/2026"}, {"po": "35659", "item": "1", "comprador": "Maycon", "descricao": "RASPADOR DI 1.1/4'' X DE 1.5/8'' X H 3/16'' JOINSEAL - D-1250", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "22/06/2026"}, {"po": "35855", "item": "2", "comprador": "Larissa", "descricao": "ASSINATURA LINKEDIN PREMIUM", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "23/06/2026"}, {"po": "35855", "item": "3", "comprador": "Larissa", "descricao": "ASSINATURA LINKEDIN PREMIUM", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "23/06/2026"}, {"po": "35855", "item": "1", "comprador": "Larissa", "descricao": "ASSINATURA LINKEDIN PREMIUM", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "23/06/2026"}, {"po": "35855", "item": "4", "comprador": "Larissa", "descricao": "ASSINATURA LINKEDIN PREMIUM", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "23/06/2026"}, {"po": "35531", "item": "3", "comprador": "Ariesa", "descricao": "SPRAY TEKBOND USO GERAL PRETO FOSCO 350 ML", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "25/06/2026"}, {"po": "34383", "item": "1", "comprador": "Larissa", "descricao": "LOCACAO DE BENS", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35308", "item": "1", "comprador": "Maycon", "descricao": "DRYWALL", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35248", "item": "8", "comprador": "Thays", "descricao": "CANTONEIRA DA AREA DE INSUMOS E GERADOR", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35248", "item": "3", "comprador": "Thays", "descricao": "SUPORTE DISPERSOR T25", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35248", "item": "5", "comprador": "Thays", "descricao": "LATERAL PRATELEIRA MENOR T70", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35248", "item": "8", "comprador": "Thays", "descricao": "SUPORTE DISPERSOR T70 - METALURGICA", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35248", "item": "1", "comprador": "Thays", "descricao": "CARRO DRONE T70", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35248", "item": "2", "comprador": "Thays", "descricao": "CARRO TRANSPORTE T25", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35248", "item": "7", "comprador": "Thays", "descricao": "CHAPA DE ENCOSTO BATERIA", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35553", "item": "1", "comprador": "Maycon", "descricao": "LOCACAO DE BENS MOVEIS / IMOVEIS (99.01.01)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35418", "item": "2", "comprador": "Maycon", "descricao": "LAMPADA VIGIA CHIFRINHO DIANTEIRA LD", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35420", "item": "10", "comprador": "Maycon", "descricao": "PORCA FORJADA - 1/2 \" COLDPAC FN - 1/2", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35420", "item": "11", "comprador": "Maycon", "descricao": "PORCA FORJADA - 5/8 \" COLDPAC FN -5/8", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35418", "item": "1", "comprador": "Maycon", "descricao": "CORREIA", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35420", "item": "8", "comprador": "Maycon", "descricao": "PORCA FORJADA -1/4\"  COLDPAC FN -1/4", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35420", "item": "9", "comprador": "Maycon", "descricao": "PORCA FORJADA -  3/8 \" COLDPAC FN -3/8", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35431", "item": "2", "comprador": "Maycon", "descricao": "ELEMENTO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35431", "item": "4", "comprador": "Maycon", "descricao": "OLEO MOTOR 0W30 TITANO/SCUDO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35431", "item": "1", "comprador": "Maycon", "descricao": "ELEMENTO FILTRO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35431", "item": "5", "comprador": "Maycon", "descricao": "BUJAO PDRENAG", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35431", "item": "3", "comprador": "Maycon", "descricao": "FILTRO CABINE TITANO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35431", "item": "6", "comprador": "Maycon", "descricao": "FILTRO OLIO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35445", "item": "1", "comprador": "Maycon", "descricao": "BUJAO PDRENAG", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35445", "item": "2", "comprador": "Maycon", "descricao": "ELEMENTO FILTRO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35445", "item": "3", "comprador": "Maycon", "descricao": "FILTRO OLIO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35445", "item": "4", "comprador": "Maycon", "descricao": "OLEO MOTOR 0W30 TITANO/SCUDO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35526", "item": "1", "comprador": "Maycon", "descricao": "BUJAO PDRENAG", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35526", "item": "2", "comprador": "Maycon", "descricao": "ELEMENTO FILTRO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35526", "item": "3", "comprador": "Maycon", "descricao": "FILTRO OLIO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35526", "item": "5", "comprador": "Maycon", "descricao": "OLEO MOTOR 0W30 TITANO/SCUDO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "26/06/2026"}, {"po": "35664", "item": "1", "comprador": "Catia", "descricao": "BLOCO DE ALUMINIO 6063 7/8'' X 120 MM", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "29/06/2026"}, {"po": "35664", "item": "2", "comprador": "Catia", "descricao": "BLOCO DE ALUMINIO 6063 1/2'' X 120 MM", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "29/06/2026"}, {"po": "34682", "item": "5", "comprador": "Catia", "descricao": "VETRORESINA BRANCA - LATERAL (SEM ADESIVO) - GERADOR 1 - CORTE - SPAD75", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "34682", "item": "6", "comprador": "Catia", "descricao": "VETRORESINA BRANCA - FRENTE (SEM ADESIVO) - GERADOR 2 - CORTE - SPAD75", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "34682", "item": "7", "comprador": "Catia", "descricao": "VETRORESINA BRANCA - SUPERIOR (SEM ADESIVO) - GERADOR 3 - CORTE - SPAD75", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "34682", "item": "12", "comprador": "Catia", "descricao": "VETRORESINA BRANCA - FRENTE (SEM ADESIVO) - CX PRINCIPAL 2 - CORTE - SPAD75", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "34682", "item": "10", "comprador": "Catia", "descricao": "VETRORESINA PRETA V60 - ASSOALHO - PORTA TRASEIRA 2 - CORTE - SPAD75", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "34682", "item": "19", "comprador": "Catia", "descricao": "VETRORESINA PRETA V45- ASSOALHO - GERADOR 4 - CORTE - SPAD75", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "34682", "item": "13", "comprador": "Catia", "descricao": "VETRORESINA PRETA V60- TETO - CX PRINCIPAL 3 - CORTE - SPAD75", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "34682", "item": "14", "comprador": "Catia", "descricao": "VETRORESINA PRETA V45 - PARALAMA LATERAL DIREITA - CX PRINCIPAL 4 - CORTE - SPAD75", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "34682", "item": "16", "comprador": "Catia", "descricao": "VETRORESINA PRETA V45 - ASSOALHO DIREITO - CX PRINCIPAL 6LD - CORTE - SPAD75", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "34682", "item": "17", "comprador": "Catia", "descricao": "VETRORESINA PRETA V45 - ASSOALHO ESQUERDO - CX PRINCIPAL 6LE - CORTE - SPAD75", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "34682", "item": "18", "comprador": "Catia", "descricao": "VETRORESINA PRETA V45- ASSOALHO FRENTE - CHASSI 1 - CORTE - SPAD75", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "34678", "item": "1", "comprador": "Ariesa", "descricao": "SUPORTE PARA DISCO DE MAQUINA DE LIMPEZA", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35130", "item": "1", "comprador": "Ariesa", "descricao": "CHAVEIRO PERSONALIZADO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "34860", "item": "2", "comprador": "Ariesa", "descricao": "LACRE QUIMICO WURTH", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35326", "item": "42", "comprador": "Larissa", "descricao": "BARBED THRU-WALL CONNECTOR ALUMINUM 1.5MM-SCN-PK2", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35111", "item": "1", "comprador": "Ariesa", "descricao": "QUADRO LOUSA MAGNETICO VIDRO 4MM FUNDO BRANCO - 2400X1200MM", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35213", "item": "4", "comprador": "Ariesa", "descricao": "COLA EPOXI 5 MINUTOS ZAP - PT 37", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35213", "item": "5", "comprador": "Ariesa", "descricao": "WIPER WYPALL X70 - 6 ROLOS COM 88 PANOS", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35343", "item": "1", "comprador": "Ariesa", "descricao": "KIT ADESIVOS MINIATURA SPAD200C", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35343", "item": "4", "comprador": "Ariesa", "descricao": "PLAQUETA MINIATURA NAURU100D", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35343", "item": "2", "comprador": "Ariesa", "descricao": "KIT ADESIVOS MINIATURA NAURU100D", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35343", "item": "3", "comprador": "Ariesa", "descricao": "KIT ADESIVOS MINIATURA NAURU500C", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35343", "item": "5", "comprador": "Ariesa", "descricao": "PLAQUETA MINIATURA NAURU500C", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35220", "item": "1", "comprador": "Ariesa", "descricao": "COFFEE BREAK", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35233", "item": "1", "comprador": "Larissa", "descricao": "BARBED THRU-WALL CONNECTOR ALUMINUM 1.5MM-SCN-PK2", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35461", "item": "5", "comprador": "Catia", "descricao": "GIZ LIQUIDO REDONDO 4,5 MM PRETO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35461", "item": "3", "comprador": "Catia", "descricao": "MARCADOR PERMANENTE AZUL", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35461", "item": "4", "comprador": "Catia", "descricao": "MARCARDOR PERMANENTE PRETO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35422", "item": "1", "comprador": "Thays", "descricao": "DRONE DJI MATRICE 400 RTK (DEMO)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35422", "item": "2", "comprador": "Thays", "descricao": "DRONE DJI MATRICE 4TD M4TD", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35351", "item": "1", "comprador": "Ariesa", "descricao": "GAS MISTURA ARG + CO2 10M3", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35351", "item": "2", "comprador": "Ariesa", "descricao": "GAS OXIGENIO ULTRA PURO 10M3", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35704", "item": "4", "comprador": "Ariesa", "descricao": "ORING 3.68 X 1.78", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35704", "item": "7", "comprador": "Ariesa", "descricao": "Macarico Manual Portatil Para Gas Map/propano EOS-757", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35704", "item": "8", "comprador": "Ariesa", "descricao": "REFIL GAS MAP 400G PARA MACARICO PORTATIL", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35704", "item": "1", "comprador": "Ariesa", "descricao": "Arame Aco Mola A1,00mm", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35704", "item": "3", "comprador": "Ariesa", "descricao": "Adesivo Torque Alto 50g Va1 Trabasil", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35704", "item": "5", "comprador": "Ariesa", "descricao": "ORING 6.02 X 2.62", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35704", "item": "6", "comprador": "Ariesa", "descricao": "Tarugo Aco Vnd O1 Redondo A 1/2'' 12.7mm X 1000mm", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35569", "item": "1", "comprador": "Thays", "descricao": "DJI ZENMUSE L3", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35569", "item": "2", "comprador": "Thays", "descricao": "DJI MATRICE 400 - BASE DE CARREGAMENTO BS100", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35569", "item": "4", "comprador": "Thays", "descricao": "DRONE DJI MATRICE 400", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35569", "item": "3", "comprador": "Thays", "descricao": "DJI MATRICE 400 - BATERIA TB100", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35750", "item": "2", "comprador": "Catia", "descricao": "CONTROLE GAMESIR G7 PRO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35646", "item": "1", "comprador": "Ariesa", "descricao": "BRINDE", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "1", "comprador": "Thays", "descricao": "FWM-35311-005 (CANTONEIRA BB1) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "2", "comprador": "Thays", "descricao": "FWM-35311-006 (CANTONEIRA BB6) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "5", "comprador": "Thays", "descricao": "FWM-25311-095 (CANTONEIRA BB3) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "7", "comprador": "Thays", "descricao": "FWM-35311-011 (CANTONEIRA BB7) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "8", "comprador": "Thays", "descricao": "FWM-35311-013 (CANTONEIRA BB8) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "10", "comprador": "Thays", "descricao": "FWM-35311-010 (CANTONEIRA BB10) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "12", "comprador": "Thays", "descricao": "FWM-35311-028 (CANTONEIRA BB25) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "13", "comprador": "Thays", "descricao": "FWM-25311-093 (CANTONEIRA BB11) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "16", "comprador": "Thays", "descricao": "FWM-35311-015 (CANTONEIRA BB13) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "3", "comprador": "Thays", "descricao": "FWM-35311-007 (CANTONEIRA BB2) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "17", "comprador": "Thays", "descricao": "FWM-35311-019 (CANTONEIRA BB15) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "4", "comprador": "Thays", "descricao": "FWM-35311-008 (CANTONEIRA BB5) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "18", "comprador": "Thays", "descricao": "FWM-35311-021 (CANTONEIRA BB16) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "6", "comprador": "Thays", "descricao": "FWM-25311-097 (CANTONEIRA BB4) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "19", "comprador": "Thays", "descricao": "FWM-35311-023 (CANTONEIRA BB17) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "9", "comprador": "Thays", "descricao": "FWM-35311-009 (CANTONEIRA BB9) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "20", "comprador": "Thays", "descricao": "FWM-25311-099 (CANTONEIRA BB20) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "11", "comprador": "Thays", "descricao": "FWM-35311-027 (CANTONEIRA BB24) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "21", "comprador": "Thays", "descricao": "FWM-25311-100 (CANTONEIRA BB23) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "14", "comprador": "Thays", "descricao": "FWM-25311-094 (CANTONEIRA BB12) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "24", "comprador": "Thays", "descricao": "FWM-35311-025 (CANTONEIRA BB18) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "15", "comprador": "Thays", "descricao": "FWM-35311-017 (CANTONEIRA BB14) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "22", "comprador": "Thays", "descricao": "FWM-35311-001 (CANTONEIRA BB19) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "23", "comprador": "Thays", "descricao": "FWM-35311-002 (CANTONEIRA BB22) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35700", "item": "25", "comprador": "Thays", "descricao": "FWM-35311-026 (CANTONEIRA BB21) (FW1000)", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35794", "item": "9", "comprador": "Catia", "descricao": "TUBO ACO 1020 D1 3/8\" ESP. 3,35MM", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35821", "item": "1", "comprador": "Catia", "descricao": "VELCRO SEM COLA MACHO/FEMEA 50MM", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35794", "item": "8", "comprador": "Catia", "descricao": "TUBO ACO 1020 D1 1/2\" ESP. 1,5MM", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35821", "item": "2", "comprador": "Catia", "descricao": "FECHO DE ENGATE RAPIDO 35MM FEMEA/MACHO", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35794", "item": "10", "comprador": "Catia", "descricao": "TUBO ACO 1020 D1 1/2\" ESP. 3,35MM", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35822", "item": "1", "comprador": "Catia", "descricao": "CHAPA 1200 X 3000 #0.9 MM", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35753", "item": "1", "comprador": "Catia", "descricao": "CHUMBO GRANULADO N11 - 1,5 MM (0,031 GRAMAS) - PACOTE 0,5 KG", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35814", "item": "4", "comprador": "Ariesa", "descricao": "ENGATE RAPIDO PARA MANGUEIRA DE JARDIM", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35814", "item": "3", "comprador": "Ariesa", "descricao": "ESGUICHO PARA MANGUEIRA DE JARDIM", "status": "Atendido Parcial", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35923", "item": "1", "comprador": "Larissa", "descricao": "MUCOMUCIL XAROPE 50ML", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}, {"po": "35923", "item": "2", "comprador": "Larissa", "descricao": "PROMUN DOG STICKS 160G", "status": "Aprovado", "mes": "2026-06", "dt_entrega": "30/06/2026"}];
+
+  var CORES = {Ariesa:"#D4A017",Catia:"#0EA5A0",Larissa:"#1A7A45",Maycon:"#1B5DBD",Thays:"#6B3FA0"};
+  var CLIST = ["Ariesa","Thays","Catia","Maycon","Larissa"];
+
+  function bcls1(c) {
+    if (c === "Mais de 7 dias") return "badge br";
+    if (c === "5 a 7 dias") return "badge by";
+    if (c === "2 a 4 dias") return "badge bb";
+    return "badge bg";
+  }
+
+  function drawT1(comp) {
+    var rows = (comp === "Todos") ? D1 : D1.filter(function(r){ return r.comprador === comp; });
+    var tb = document.getElementById("tb1");
+    if (!rows.length) {
+      tb.innerHTML = "<tr><td colspan='5'><div class='empty-state'>Nenhuma SC encontrada.</div></td></tr>";
+    } else {
+      var html = "";
+      for (var i = 0; i < rows.length; i++) {
+        var r = rows[i];
+        html += "<tr><td><span class='scn'>#" + r.sc + "</span></td>";
+        html += "<td>" + r.comprador + "</td>";
+        html += "<td>" + r.qtd + " " + (r.qtd===1?"item":"itens") + "</td>";
+        html += "<td><span class='dn'>" + r.dias + " " + (r.dias===1?"dia":"dias") + "</span></td>";
+        html += "<td><span class='" + bcls1(r.classificacao) + "'>" + r.classificacao + "</span></td></tr>";
+      }
+      tb.innerHTML = html;
+    }
+    var total = 0;
+    for (var i = 0; i < rows.length; i++) total += rows[i].qtd;
+    document.getElementById("rc1").textContent = rows.length + " " + (rows.length===1?"SC":"SCs") + " \u00b7 " + total + " " + (total===1?"item":"itens");
+  }
+
+  window.f1 = function(btn) {
+    var btns = document.querySelectorAll("#aba1 .filter-btn");
+    for (var i = 0; i < btns.length; i++) btns[i].classList.remove("active");
+    btn.classList.add("active");
+    drawT1(btn.getAttribute("data-c"));
+  }
+
+  drawT1("Todos");
+
+  var pv = [6, 0, 11, 2, 10];
+  var ptot = 29;
+  var pcols = CLIST.map(function(c){ return CORES[c]; });
+  new Chart(document.getElementById("pie1").getContext("2d"), {
+    type: "doughnut",
+    data: { labels: CLIST, datasets: [{ data: pv, backgroundColor: pcols, borderWidth: 2, borderColor: "#fff" }] },
+    options: { responsive: true, maintainAspectRatio: false, cutout: "62%", plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(ctx){ return " " + ctx.label + ": " + ctx.raw + " itens (" + (ctx.raw/ptot*100).toFixed(1) + "%)"; } } } } }
+  });
+  var legEl = document.getElementById("leg1");
+  for (var i = 0; i < CLIST.length; i++) {
+    var pct = (pv[i]/ptot*100).toFixed(1);
+    var d = document.createElement("div"); d.className = "legend-row";
+    d.innerHTML = "<span class='legend-dot' style='background:" + pcols[i] + "'></span><span class='legend-name'>" + CLIST[i] + "</span><span class='legend-count'>" + pv[i] + "</span><span class='legend-pct'>" + pct + "%</span>";
+    legEl.appendChild(d);
+  }
+
+  new Chart(document.getElementById("bar1").getContext("2d"), {
+    type: "bar",
+    data: { labels: ["Menos que 2 dias","2 a 4 dias","5 a 7 dias","Mais de 7 dias"], datasets: [{ label: "Itens", data: [7, 0, 22, 0], backgroundColor: ["rgba(26,122,69,0.5)","rgba(27,93,189,0.5)","rgba(212,160,23,0.5)","rgba(192,57,43,0.5)"], borderColor: ["#1A7A45","#1B5DBD","#D4A017","#C0392B"], borderWidth: 1.5, borderRadius: 5, borderSkipped: false, barPercentage: .55 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(ctx){ return " " + ctx.raw + " itens"; } } } }, scales: { y: { beginAtZero: true, grid: { display:true, color: "#E5E7EB" }, ticks: { font: { size: 12 }, color: "#9CA3AF" }, border: { display: false } }, x: { grid: { display:true, color: "#E5E7EB" }, ticks: { font: { size: 12, weight: "600" }, color: "#6B7280" }, border: { display: false } } } }
+  });
+
+  var barComp2Chart = null;
+  var barMes2Chart  = null;
+  var selC2active   = "Todos";
+  var COLOR_APROV_BG = "rgba(26,122,69,0.5)";
+  var COLOR_APROV_BORDER = "#1A7A45";
+  var COLOR_PARC_BG = "rgba(27,93,189,0.5)";
+  var COLOR_PARC_BORDER = "#1B5DBD";
+
+  function buildCharts2(data) {
+    var CLIST5 = ["Ariesa","Catia","Larissa","Maycon","Thays"];
+    var compDataArr = [];
+    CLIST5.forEach(function(c) {
+      var aprov = 0, parc = 0;
+      data.forEach(function(r){ if(r.comprador===c){ if(r.status==="Aprovado") aprov++; else parc++; } });
+      var total = aprov + parc;
+      if (total > 0) { compDataArr.push({ label: c.toUpperCase(), aprov: aprov, parc: parc, total: total }); }
+    });
+    compDataArr.sort(function(a, b) { return b.total - a.total; });
+    var compLabels = compDataArr.map(function(item) { return item.label; });
+    var compAprov = compDataArr.map(function(item) { return item.aprov; });
+    var compParc = compDataArr.map(function(item) { return item.parc; });
+
+    var mesMap = {};
+    data.forEach(function(r){ if(!mesMap[r.mes]) mesMap[r.mes]={aprov:0,parc:0}; if(r.status==="Aprovado") mesMap[r.mes].aprov++; else mesMap[r.mes].parc++; });
+    var mesKeys = Object.keys(mesMap).sort();
+    var mesLabels = mesKeys.map(function(m){ var p=m.split("-"); var names=["","Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]; return names[+p[1]]+"/"+(p[0].slice(2)); });
+    var mesAprov  = mesKeys.map(function(m){ return mesMap[m].aprov; });
+    var mesParc   = mesKeys.map(function(m){ return mesMap[m].parc; });
+    
+    var makeOpts = function(labels, aprov, parc) {
+      return { type:"bar", data:{ labels:labels, datasets:[
+          { label:"APROVADO", data:aprov, backgroundColor:COLOR_APROV_BG, borderColor:COLOR_APROV_BORDER, borderWidth:1.5, stack:"s" },
+          { label:"PARCIAL",  data:parc,  backgroundColor:COLOR_PARC_BG, borderColor:COLOR_PARC_BORDER, borderWidth:1.5, stack:"s" }
+        ]},
+        options:{ responsive:true, maintainAspectRatio:false,
+          plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:function(ctx){ return " "+ctx.dataset.label+": "+ctx.raw; } } } },
+          scales:{
+            x:{ grid:{display:true, color:"#E5E7EB"}, ticks:{font:{size:11,weight:"700"},color:"#555"}, border:{display:false} },
+            y:{ beginAtZero:true, grid:{display:true, color:"#E5E7EB"}, border:{display:false}, ticks:{display:true, font:{size:11}, color:"#888"} }
+          }
+        }
+      };
+    };
+    if (barComp2Chart) barComp2Chart.destroy();
+    barComp2Chart = new Chart(document.getElementById("barComp2").getContext("2d"), makeOpts(compLabels, compAprov, compParc));
+    if (barMes2Chart) barMes2Chart.destroy();
+    barMes2Chart  = new Chart(document.getElementById("barMes2").getContext("2d"),  makeOpts(mesLabels, mesAprov, mesParc));
+  }
+
+  function updateKPI2(data) {
+    var total = data.length;
+    var aprov = 0, parc = 0;
+    var byC = {};
+    data.forEach(function(r){ 
+      if(r.status==="Aprovado") aprov++; else parc++; 
+      byC[r.comprador] = (byC[r.comprador]||0) + 1;
+    });
+    document.getElementById("kTotal2").textContent  = total;
+    document.getElementById("kAprov2").textContent  = aprov;
+    document.getElementById("kParcial2").textContent= parc;
+    document.getElementById("rc2").textContent = total+" "+(total===1?"item":"itens")+" encontrado"+(total!==1?"s":"");
+    var top = null, topN = 0;
+    for (var k in byC) { if (byC[k] > topN) { topN = byC[k]; top = k; } }
+    if (top) {
+      document.getElementById("kTop2").textContent = top;
+      document.getElementById("kTopSub2").textContent = topN + " itens - " + (total>0?(topN/total*100).toFixed(1):0) + "% do total";
+    } else {
+      document.getElementById("kTop2").textContent = "-";
+      document.getElementById("kTopSub2").textContent = "Sem dados";
+    }
+  }
+
+  function drawT2(data) {
+    var tb = document.getElementById("tb2");
+    if (!data.length) { tb.innerHTML = "<tr><td colspan='6'><div class='empty-state'>Nenhum item encontrado.</div></td></tr>"; return; }
+    var html = "";
+    for (var i = 0; i < data.length; i++) {
+      var r = data[i];
+      var sc = r.status === "Aprovado" ? "badge bg" : "badge bt";
+      var dot = CORES[r.comprador] || "#9CA3AF";
+      html += "<tr><td><span class='scn'>#"+r.po+"</span></td>";
+      html += "<td><span class='dn'>"+r.item+"</span></td>";
+      html += "<td><span style='display:inline-flex;align-items:center;gap:6px'><span style='width:8px;height:8px;border-radius:50%;background:"+dot+";flex-shrink:0'></span>"+r.comprador+"</span></td>";
+      html += "<td class='dc'><span class='dt' title='"+r.descricao+"'>"+r.descricao+"</span></td>";
+      html += "<td><span class='dn'>"+r.dt_entrega+"</span></td>";
+      html += "<td><span class='"+sc+"'>"+r.status+"</span></td></tr>";
+    }
+    tb.innerHTML = html;
+  }
+
+  window.applyF2 = function() {
+    var mes    = document.getElementById("selMes").value;
+    var status = document.getElementById("selS2").value;
+    var chartData = (mes === "Todos") ? D2 : D2.filter(function(r){ return r.mes === mes; });
+    buildCharts2(chartData);
+    var tableData = chartData;
+    if (selC2active !== "Todos") tableData = tableData.filter(function(r){ return r.comprador === selC2active; });
+    if (status !== "Todos")      tableData = tableData.filter(function(r){ return r.status === status; });
+    updateKPI2(tableData);
+    drawT2(tableData);
+  }
+
+  window.f1aba2 = function(btn) {
+    var btns = document.querySelectorAll("#aba2 .filter-btn");
+    for (var i=0;i<btns.length;i++) btns[i].classList.remove("active");
+    btn.classList.add("active");
+    selC2active = btn.getAttribute("data-c");
+    applyF2();
+  }
+
+  window.resetF2 = function() {
+    document.getElementById("selMes").value = "Todos";
+    document.getElementById("selS2").value  = "Todos";
+    selC2active = "Todos";
+    var btns = document.querySelectorAll("#aba2 .filter-btn");
+    for (var i=0;i<btns.length;i++) btns[i].classList.remove("active");
+    document.querySelector("#aba2 .filter-btn").classList.add("active");
+    applyF2();
+  }
+  applyF2();
+})();
+
+// ==============================================
+// SCRIPT ABAS 3 A 7 (Conteudo do Painel Compras)
+// ==============================================
+(function(){
+  const GREEN='#28A737',RED='#C0392B',AMBER='#B7770D',BLUE='#2C88B1',NAVY='#0E2035';
+  const COMP_COLORS=["#E84393", "#2C88B1", "#28A737", "#F5A623", "#9B59B6"];
+  const COMPRADORES=["ARIESA", "CATIA", "LARISSA", "MAYCON", "THAYS"];
+  const MESES=["Jan/26", "Fev/26", "Mar/26", "Abr/26", "Mai/26", "Jun/26"];
+  const N=6;
+
+  // -- ABA 3: ATENDIMENTO --
+  new Chart(document.getElementById('cVol'),{type:'bar',data:{labels:MESES,datasets:[{label:'2025',data:[3789891.0, 2823711.0, 1581764.0, 4758872.0, 1743616.0, 1941963.0],backgroundColor:'rgba(44,136,177,.3)',borderColor:BLUE,borderWidth:1.5,borderRadius:3},{label:'2026',data:[1455722.0, 4702694.0, 5315505.0, 5247916.0, 6933221.0, 4084502.0],backgroundColor:'rgba(40,167,55,.3)',borderColor:GREEN,borderWidth:1.5,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}},scales:{y:{ticks:{callback:v=>v>=1e6?'R$'+(v/1e6).toFixed(1)+'M':'R$'+(v/1e3).toFixed(0)+'k',font:{size:9}}},x:{ticks:{font:{size:10}}}}}});
+  new Chart(document.getElementById('cLin'),{type:'bar',data:{labels:MESES,datasets:[{label:'2025',data:[1314, 465, 1090, 887, 399, 393],backgroundColor:'rgba(44,136,177,.3)',borderColor:BLUE,borderWidth:1.5,borderRadius:3},{label:'2026',data:[654, 795, 1659, 907, 1216, 868],backgroundColor:'rgba(40,167,55,.3)',borderColor:GREEN,borderWidth:1.5,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}},scales:{y:{ticks:{font:{size:9}}},x:{ticks:{font:{size:10}}}}}});
+  const deltasMes=[4.38, 3.06, 3.09, 2.58, 3.01, 1.73];
+  new Chart(document.getElementById('cDelta'),{type:'bar',data:{labels:MESES,datasets:[{label:'Delta',data:deltasMes,backgroundColor:deltasMes.map(v=>v<=3?'rgba(40,167,55,.4)':v<=4?'rgba(183,119,13,.4)':'rgba(192,57,43,.4)'),borderColor:deltasMes.map(v=>v<=3?GREEN:v<=4?AMBER:RED),borderWidth:2,borderRadius:4,order:2},{label:'Ref.2025',data:Array(N).fill(3.52),type:'line',borderColor:'#aaa',borderDash:[5,4],borderWidth:1.5,pointRadius:0,fill:false,order:1}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}},scales:{y:{max:8,ticks:{callback:v=>v+'d',font:{size:9}}},x:{ticks:{font:{size:10}}}}}});
+
+  const hmData=[{"comp": "ARIESA", "vals": [6.32, 3.95, 3.99, 2.0, 4.81, 1.78], "ref25": 5.45}, {"comp": "CATIA", "vals": [3.6, 2.58, 3.91, 4.04, 4.65, 2.55], "ref25": 4.88}, {"comp": "LARISSA", "vals": [6.76, 2.8, 1.65, 2.13, 2.37, 0.96], "ref25": 5.85}, {"comp": "MAYCON", "vals": [3.85, 3.45, 6.99, 2.04, 3.02, 1.73], "ref25": 1.64}, {"comp": "THAYS", "vals": [2.75, 1.62, 1.34, 2.01, 0.5, 3.66], "ref25": 3.16}];
+  const hmHdr=document.getElementById('hmHdr');
+  if(hmHdr){
+    ['', ...MESES].forEach(l=>{const d=document.createElement('div');d.style.cssText='font-size:9px;color:var(--s2-gray);font-weight:700;text-align:center;';d.textContent=l;hmHdr.appendChild(d);});
+    const hmBody=document.getElementById('hmBody');
+    hmData.forEach(item=>{const comp=item.comp,vals=item.vals,ref25=item.ref25;const lbl=document.createElement('div');lbl.style.cssText='font-size:10px;font-weight:700;color:#333;display:flex;align-items:center;';lbl.textContent=comp;hmBody.appendChild(lbl);vals.forEach(v=>{const c=document.createElement('div');const cls='hm-cell hm-g';c.className=cls;c.innerHTML='<div class="hm-v">'+(v===null?'—':v.toFixed(2)+'d')+'</div>';hmBody.appendChild(c);});});
+  }
+
+  // -- ABA 4: PMP --
+  const pmpVals=[34.8, 36.2, 29.9, 30.4, 31.5, 30.6];
+  if(document.getElementById('cPMP')) new Chart(document.getElementById('cPMP'),{type:'bar',data:{labels:MESES,datasets:[{label:'PMP',data:pmpVals,backgroundColor:pmpVals.map(v=>v>=35?'rgba(40,167,55,.4)':'rgba(192,57,43,.4)'),borderColor:pmpVals.map(v=>v>=35?GREEN:RED),borderWidth:2,borderRadius:4,order:2},{label:'Meta 35d',data:Array(N).fill(35),type:'line',borderColor:NAVY,borderDash:[6,4],borderWidth:2,pointRadius:0,fill:false,order:1}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}},scales:{y:{max:50,ticks:{callback:v=>v+'d',font:{size:9}}},x:{ticks:{font:{size:10}}}}}});
+  
+  const pmpCompLast={"ARIESA": 27.9, "CATIA": 33.9, "LARISSA": 32.8, "MAYCON": 45.5, "THAYS": 29.9};
+  const gw=document.getElementById('gaugePMP');
+  if(gw){
+    Object.entries(pmpCompLast).forEach(([c,v])=>{const cls=v>=35?'g-circle hit':'g-circle miss';gw.innerHTML+='<div class="g-item"><div class="'+cls+'"><div class="gv">'+v+'</div><div class="gl">dias</div></div><div class="g-name">'+c+'</div></div>';});
+  }
+
+  if(document.getElementById('cPMPCat')) new Chart(document.getElementById('cPMPCat'),{type:'bar',data:{labels:MESES,datasets:[{label:'Faturado',data:[94.8, 98.5, 95.7, 97.7, 99.3, 99.7],backgroundColor:'rgba(40,167,55,.5)',borderColor:GREEN,borderWidth:1,stack:'s'},{label:'Antecipado',data:[3.6, 1.1, 3.0, 1.6, 0.5, 0.2],backgroundColor:'rgba(192,57,43,.5)',borderColor:RED,borderWidth:1,stack:'s'},{label:'À Vista',data:[1.6, 0.5, 1.3, 0.7, 0.2, 0.1],backgroundColor:'rgba(183,119,13,.5)',borderColor:AMBER,borderWidth:1,stack:'s'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}},scales:{x:{stacked:true,ticks:{font:{size:10}}},y:{stacked:true,max:100,ticks:{callback:v=>v+'%',font:{size:9}}}}}});
+
+  if(document.getElementById('cPMPComp')) new Chart(document.getElementById('cPMPComp'),{type:'line',data:{labels:MESES,datasets:[{label:'ARIESA',data:[25.1, 32.9, 25.7, 28.8, 26.3, 29.1],borderColor:COMP_COLORS[0],backgroundColor:'transparent',borderWidth:2,pointRadius:3,tension:.3},{label:'CATIA',data:[42.1, 35.2, 31.5, 24.6, 35.5, 32.4],borderColor:COMP_COLORS[1],backgroundColor:'transparent',borderWidth:2,pointRadius:3,tension:.3},{label:'LARISSA',data:[20.6, 28.2, 35.5, 36.9, 32.7, 31.9],borderColor:COMP_COLORS[2],backgroundColor:'transparent',borderWidth:2,pointRadius:3,tension:.3},{label:'MAYCON',data:[59.8, 34.9, 32.0, 37.8, 43.7, 51.5],borderColor:COMP_COLORS[3],backgroundColor:'transparent',borderWidth:2,pointRadius:3,tension:.3},{label:'THAYS',data:[28.3, 40.2, 29.7, 29.0, 28.2, 29.6],borderColor:COMP_COLORS[4],backgroundColor:'transparent',borderWidth:2,pointRadius:3,tension:.3},{label:'Meta 35d',data:Array(N).fill(35),borderColor:'#CCC',borderDash:[5,4],borderWidth:1.5,pointRadius:0,fill:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10,padding:8}}},scales:{y:{ticks:{callback:v=>v+'d',font:{size:9}}},x:{ticks:{font:{size:10}}}}}});
+
+  const PMP_GERAL_R=[["INTELBRAS", 2066202.0, 17.5, 28.0, "LARISSA/THAYS"], ["USI-SEVEN", 1806469.0, 15.3, 28.4, "CATIA/THAYS"], ["AGROJ DRONES IMPORTA", 1811396.0, 15.3, 30.0, "THAYS"], ["AL-KO TECHNOLOGY BRA", 749417.0, 6.3, 28.1, "CATIA/THAYS"], ["MALCON METALURGICA L", 450536.0, 3.8, 28.0, "THAYS"], ["CANARINHO GIFT", 97896.0, 0.8, 5.2, "ARIESA"], ["SM COMUNICACAO VISUA", 129000.0, 1.1, 14.1, "ARIESA/CATIA"], ["TALK PRODUCOES", 71500.0, 0.6, 0.0, "ARIESA"], ["E.H.E. INDUSTRIA", 299848.0, 2.5, 28.0, "THAYS"], ["ICAM", 147026.0, 1.2, 28.0, "CATIA/THAYS"], ["VETRORESINA DO BRASI", 46858.0, 0.4, 15.0, "CATIA/THAYS"], ["MERCADO PAGO", 19847.0, 0.2, 1.0, "ARIESA/CATIA/LARISSA/THAYS"], ["ARAG DO BRASIL S.A.", 92071.0, 0.8, 28.0, "CATIA/MAYCON/THAYS"], ["W66 COMUNICACAO DIGI", 28423.0, 0.2, 15.0, "CATIA/LARISSA"], ["TOP RACK", 15159.0, 0.1, 0.0, "CATIA"], ["HORUS FERRAMENTAS E", 22035.0, 0.2, 14.0, "CATIA"], ["HENKEL", 65148.0, 0.6, 28.0, "ARIESA/CATIA/LARISSA"], ["PILOTSHOP SOROCABA", 21285.0, 0.2, 14.3, "ARIESA"], ["LW COMUNICACAO VISUA", 18825.0, 0.2, 14.2, "ARIESA/CATIA"], ["ABENETO", 51314.0, 0.4, 28.0, "CATIA/LARISSA/MAYCON/THAYS"]];
+  const PMP_COMP_R={"ARIESA": [["CANARINHO GIFT", 97896.0, 10.0, 5.2], ["TALK PRODUCOES", 71500.0, 7.3, 0.0], ["PILOTSHOP SOROCABA", 21285.0, 2.2, 14.3], ["WORLD MATAO COMUNICA", 47100.0, 4.8, 28.0], ["XPRESSO CAFETERIA E", 11881.0, 1.2, 10.1], ["MELANIE ANDRIOLI GUI", 35612.0, 3.6, 28.0], ["MOSAICO", 12456.0, 1.3, 15.0], ["ARTFACAS", 9900.0, 1.0, 15.0], ["MERCADO PAGO", 4857.0, 0.5, 0.0], ["HENKEL", 23659.0, 2.4, 28.0], ["ESPECIAL CAFES E MAQ", 26504.0, 2.7, 29.0], ["ELETRONICA PINHE LTD", 27271.0, 2.8, 29.4], ["PRADO SUPRIMENTOS IN", 67588.0, 6.9, 32.8], ["LIMP FACIL DISTRIBUI", 21067.0, 2.2, 28.0], ["SAO CARLOS COMERCIO", 5110.0, 0.5, 10.0], ["NORTEL", 13343.0, 1.4, 26.1], ["HOTEL OT", 3000.0, 0.3, 0.0], ["AVENIDA TINTAS", 29439.0, 3.0, 31.5], ["TERESA MARIA BERTOLI", 2939.0, 0.3, 0.0], ["MERCEARIA 3M", 3800.0, 0.4, 10.0]], "CATIA": [["AL-KO TECHNOLOGY BRA", 609592.0, 22.5, 28.0], ["SM COMUNICACAO VISUA", 128400.0, 4.7, 14.0], ["ICAM", 146866.0, 5.4, 28.0], ["USI-SEVEN", 103460.0, 3.8, 28.0], ["TOP RACK", 15159.0, 0.6, 0.0], ["W66 COMUNICACAO DIGI", 26393.0, 1.0, 15.0], ["ARAG DO BRASIL S.A.", 74117.0, 2.7, 28.0], ["HORUS FERRAMENTAS E", 22035.0, 0.8, 14.0], ["VETRORESINA DO BRASI", 20812.0, 0.8, 15.0], ["LW COMUNICACAO VISUA", 18500.0, 0.7, 14.0], ["BRASLUX INDUSTRIA DE", 44355.0, 1.6, 27.2], ["LZ MADEIRAS LTDA", 33464.0, 1.2, 28.0], ["MERCADO PAGO", 6185.0, 0.2, 0.0], ["FIXOVED FIXACAO E VE", 26868.0, 1.0, 28.0], ["UNIPLAST", 24497.0, 0.9, 28.0], ["JOCEC PRODUTOS METAL", 4019.0, 0.1, 0.0], ["ABENETO", 16742.0, 0.6, 28.0], ["WEG DRIVES & CONTROL", 16664.0, 0.6, 28.0], ["FNA", 13657.0, 0.5, 26.8], ["MAXEPOXI INDUSTRIAL", 8804.0, 0.3, 23.4]], "LARISSA": [["INTELBRAS", 54856.0, 6.2, 28.0], ["MERCADO PAGO", 8245.0, 0.9, 2.5], ["SLIM 3D TECNOLOGIA", 32558.0, 3.7, 28.0], ["VIAPACK", 9106.0, 1.0, 11.7], ["HENKEL", 27387.0, 3.1, 28.0], ["LINKEDIN", 4800.0, 0.5, 0.0], ["LUBMIX", 22000.0, 2.5, 28.0], ["NORTEL", 13677.0, 1.5, 23.8], ["ESPECIAL CAFES E MAQ", 26208.0, 3.0, 30.0], ["MAPMATERIAIS DE ALTA", 8371.0, 0.9, 21.0], ["TRANSLASER", 3196.0, 0.4, 0.0], ["ABENETO", 15911.0, 1.8, 28.0], ["LAUQUEN CIRCUITOS IM", 73200.0, 8.3, 33.5], ["ELIANE IZAIAS MACHAD", 21201.0, 2.4, 30.0], ["MELRO ELETRONICA", 11895.0, 1.3, 28.0], ["ACOS VITAL", 11136.0, 1.3, 28.0], ["DEAL4B SOLUCOES EM T", 2187.0, 0.2, 0.0], ["ACTOS COMERCIO IMPOR", 2800.0, 0.3, 10.0], ["MAXEPOXI INDUSTRIAL", 10530.0, 1.2, 29.0], ["AUMA 3D", 8829.0, 1.0, 28.0]], "MAYCON": [["GRANDOURADOS VEICULO", 7079.0, 2.1, 6.5], ["JC PNEUS E AUTO SERV", 4940.0, 1.5, 0.0], ["ARAG DO BRASIL S.A.", 17637.0, 5.3, 28.0], ["GALEAO PNEUS", 2685.0, 0.8, 0.0], ["PERCAL DISTRIBUIDORA", 2616.0, 0.8, 0.0], ["JOSEF TONY KRANZEGGE", 5102.0, 1.5, 19.2], ["TAURUS", 14199.0, 4.3, 29.5], ["BAURUMIX CONCRETO LT", 14040.0, 4.3, 30.0], ["AUTO ELETRICO MICHEL", 3570.0, 1.1, 15.9], ["ENZO JOAQUIM MURTINH", 1887.0, 0.6, 0.0], ["APPLAUSO VEICULOS", 2785.0, 0.8, 14.4], ["ESPACO REAL REVESTIM", 9600.0, 2.9, 29.8], ["AVENIDA TINTAS", 6863.0, 2.1, 28.0], ["VERITA VEICULOS LTDA", 1240.0, 0.4, 0.0], ["DOMANI VEICULOS", 6615.0, 2.0, 29.0], ["PRADO SUPRIMENTOS IN", 6473.0, 2.0, 29.4], ["ASCIA VEICULOS", 6395.0, 1.9, 29.6], ["MONACO CENTRO OESTE", 1668.0, 0.5, 16.3], ["AMAZON AWS", 842.0, 0.3, 0.0], ["BETIOLO FIAT", 811.0, 0.2, 0.0]], "THAYS": [["INTELBRAS", 2011346.0, 29.1, 28.0], ["USI-SEVEN", 1703010.0, 24.6, 28.4], ["AGROJ DRONES IMPORTA", 1811396.0, 26.2, 30.0], ["MALCON METALURGICA L", 450536.0, 6.5, 28.0], ["E.H.E. INDUSTRIA", 299848.0, 4.3, 28.0], ["AL-KO TECHNOLOGY BRA", 139825.0, 2.0, 28.3], ["VETRORESINA DO BRASI", 26046.0, 0.4, 15.0], ["MC TEC", 40750.0, 0.6, 28.0], ["HIDRONTEX", 3850.0, 0.1, 0.0], ["ABENETO", 18451.0, 0.3, 28.0], ["EPR SELOS MECANICOS", 17000.0, 0.2, 28.0], ["MARCOS APARECIDO FLO", 19780.0, 0.3, 30.0], ["FENIX", 3630.0, 0.1, 10.0], ["METALURGICA SUPERFLE", 15288.0, 0.2, 30.0], ["TETRAPARTS PECAS E S", 10880.0, 0.2, 28.0], ["CIRCELLI ROLAMENTOS", 7380.0, 0.1, 28.0], ["MARKLIN", 1428.0, 0.0, 0.0], ["PLASMOVAC PLASTICOS", 7062.0, 0.1, 28.0], ["VIVIANI VEICULOS RIO", 1277.0, 0.0, 0.0], ["BUZAS INDUSTRIA E CO", 5952.0, 0.1, 28.0]]};
+  const tabsEl=document.getElementById('pmpFornTabs');
+  if(tabsEl) {
+    ['GERAL','ARIESA','CATIA','LARISSA','MAYCON','THAYS'].forEach((o,i)=>{const btn=document.createElement('button');btn.className='ret-tab'+(i===0?' active':'');btn.textContent=o;btn.onclick=()=>showF(o);tabsEl.appendChild(btn);});
+  }
+  
+  window.showF = function(sel) {
+    document.querySelectorAll('#pmpFornTabs .ret-tab').forEach(t=>t.classList.toggle('active',t.textContent===sel));
+    const lista=sel==='GERAL'?PMP_GERAL_R:(PMP_COMP_R[sel]||[]);
+    const wrap=document.getElementById('pmp-forn-wrap');
+    if(!lista.length){wrap.innerHTML='<p style="color:var(--s2-gray);font-size:12px">Sem dados.</p>';return;}
+    const maxPMP=Math.max(...lista.map(r=>r[3]||0))||35;
+    let html='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px"><thead><tr><th style="background:'+NAVY+';color:#fff;padding:8px 10px;text-align:left;width:36px">#</th><th style="background:'+NAVY+';color:#fff;padding:8px 10px;text-align:left">Fornecedor</th>'+(sel==='GERAL'?'<th style="background:'+NAVY+';color:#fff;padding:8px 10px;text-align:center">Compradores</th>':'')+'<th style="background:'+NAVY+';color:#fff;padding:8px 10px;text-align:right">Volume</th><th style="background:'+NAVY+';color:#fff;padding:8px 10px;text-align:right">% Vol.</th><th style="background:'+NAVY+';color:#fff;padding:8px 10px;text-align:center;min-width:180px">PMP (dias)</th></tr></thead><tbody>';
+    lista.forEach((r,i)=>{const bg=i%2===0?'#fff':'#F8FAFB';const pmp=r[3]||0;const barW=Math.round(pmp/Math.max(maxPMP,35)*100);const barC=pmp>=35?GREEN:pmp>=25?AMBER:RED;const pmpHtml=pmp===0?'<span style="color:#999">A VISTA/ANTEC.</span>':'<div style="display:flex;align-items:center;gap:6px"><div style="flex:1;height:6px;background:#E8ECF0;border-radius:3px;overflow:hidden"><div style="width:'+barW+'%;height:100%;background:'+barC+';border-radius:3px"></div></div><span style="font-weight:700;color:'+barC+';min-width:32px">'+pmp+'d</span></div>';html+='<tr style="background:'+bg+'"><td style="padding:7px 10px;border-bottom:.5px solid var(--s2-border);color:#999;font-size:10px">'+(i+1)+'</td><td style="padding:7px 10px;border-bottom:.5px solid var(--s2-border);font-weight:600;color:'+NAVY+'">'+r[0]+'</td>'+(sel==='GERAL'?'<td style="padding:7px 10px;border-bottom:.5px solid var(--s2-border);text-align:center;font-size:10px;color:var(--s2-gray)">'+(r[4]||'—')+'</td>':'')+'<td style="padding:7px 10px;border-bottom:.5px solid var(--s2-border);text-align:right;color:'+NAVY+'">R$ '+Number(r[1]).toLocaleString('pt-BR')+'</td><td style="padding:7px 10px;border-bottom:.5px solid var(--s2-border);text-align:right;color:var(--s2-gray)">'+r[2]+'%</td><td style="padding:7px 10px;border-bottom:.5px solid var(--s2-border)">'+pmpHtml+'</td></tr>';});
+    html+='</tbody></table></div>';wrap.innerHTML=html;
+  }
+  if(tabsEl) showF('GERAL');
+
+  // -- ABA 5: IMPACTO FINANCEIRO --
+  if(document.getElementById('cImpacto')) new Chart(document.getElementById('cImpacto'),{type:'bar',data:{labels:["Jan/26", "Fev/26", "Mar/26", "Abr/26", "Mai/26", "Jun/26"],datasets:[{label:'Impacto',data:[849.34, -6229.96, 127988.34, -22708.18, 17556.07, -3229.79],backgroundColor:['rgba(192,57,43,.4)','rgba(40,167,55,.4)','rgba(192,57,43,.4)','rgba(40,167,55,.4)','rgba(192,57,43,.4)','rgba(40,167,55,.4)'],borderColor:[RED,GREEN,RED,GREEN,RED,GREEN],borderWidth:2,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' R$ '+c.raw.toLocaleString('pt-BR')}}},scales:{y:{ticks:{callback:v=>(v/1000).toFixed(0)+'k',font:{size:9}}},x:{ticks:{font:{size:10}}}}}});
+  if(document.getElementById('cAcum')) new Chart(document.getElementById('cAcum'),{type:'bar',data:{labels:["Jan/26", "Fev/26", "Mar/26", "Abr/26", "Mai/26", "Jun/26"],datasets:[{label:'Acumulado',data:[849.34, -5380.62, 122607.72, 99899.54, 117455.61, 114225.82],backgroundColor:['rgba(183,119,13,.4)','rgba(40,167,55,.4)','rgba(183,119,13,.4)','rgba(183,119,13,.4)','rgba(183,119,13,.4)','rgba(183,119,13,.4)'],borderColor:[AMBER,GREEN,AMBER,AMBER,AMBER,AMBER],borderWidth:2,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' R$ '+c.raw.toLocaleString('pt-BR')}}},scales:{y:{ticks:{callback:v=>(v/1000).toFixed(0)+'k',font:{size:9}}},x:{ticks:{font:{size:10}}}}}});
+  if(document.getElementById('cImpComp')) new Chart(document.getElementById('cImpComp'),{type:'line',data:{labels:MESES,datasets:[{label:'ARIESA',data:[-3.2, -253.39, 743.03, -2149.5, -1091.2, 3049.87],borderColor:COMP_COLORS[0],backgroundColor:'transparent',borderWidth:2,pointRadius:4,tension:.3},{label:'CATIA',data:[-281.02, -5867.37, 5577.38, 988.41, -25440.4, 1352.74],borderColor:COMP_COLORS[1],backgroundColor:'transparent',borderWidth:2,pointRadius:4,tension:.3},{label:'LARISSA',data:[-410.59, 0.0, -996.71, -721.63, -334.16, -1379.5],borderColor:COMP_COLORS[2],backgroundColor:'transparent',borderWidth:2,pointRadius:4,tension:.3},{label:'MAYCON',data:[0.0, 0.0, 544.0, 1153.6, 0.0, -1750.0],borderColor:COMP_COLORS[3],backgroundColor:'transparent',borderWidth:2,pointRadius:4,tension:.3},{label:'THAYS',data:[1615.7, -109.2, 122120.65, -21979.06, 44421.81, -4502.9],borderColor:COMP_COLORS[4],backgroundColor:'transparent',borderWidth:2,pointRadius:4,tension:.3},{label:'Zero',data:Array(N).fill(0),borderColor:'#CCC',borderDash:[4,3],borderWidth:1.5,pointRadius:0,fill:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10,padding:8}}},scales:{y:{ticks:{callback:v=>v>=1000||v<=-1000?(v/1000).toFixed(0)+'k':v,font:{size:9}}},x:{ticks:{font:{size:10}}}}}});
+
+  // -- ABA 6: RETRABALHO --
+  const retPct=[30.3, 2.6, 32.4, 7.6, 24.2, 4.3];
+  if(document.getElementById('cRetMes')) new Chart(document.getElementById('cRetMes'),{type:'bar',data:{labels:MESES,datasets:[{label:'%',data:retPct,backgroundColor:retPct.map(v=>v>=20?'rgba(192,57,43,.4)':v>=10?'rgba(183,119,13,.4)':'rgba(40,167,55,.4)'),borderColor:retPct.map(v=>v>=20?RED:v>=10?AMBER:GREEN),borderWidth:2,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{max:40,ticks:{callback:v=>v+'%',font:{size:9}}},x:{ticks:{font:{size:10}}}}}});
+  if(document.getElementById('cRetComp')) new Chart(document.getElementById('cRetComp'),{type:'line',data:{labels:MESES,datasets:[{label:'ARIESA',data:[25.0, 0.0, 56.0, 0.0, 18.4, 2.9],borderColor:COMP_COLORS[0],backgroundColor:'transparent',borderWidth:2,pointRadius:3,tension:.3},{label:'CATIA',data:[34.4, 1.7, 8.3, 4.1, 0.8, 0.0],borderColor:COMP_COLORS[1],backgroundColor:'transparent',borderWidth:2,pointRadius:3,tension:.3},{label:'LARISSA',data:[50.0, 10.0, 63.9, 8.7, 7.4, 3.6],borderColor:COMP_COLORS[2],backgroundColor:'transparent',borderWidth:2,pointRadius:3,tension:.3},{label:'MAYCON',data:[0, 0, 0.0, 18.2, 0.0, 0.0],borderColor:COMP_COLORS[3],backgroundColor:'transparent',borderWidth:2,pointRadius:3,tension:.3},{label:'THAYS',data:[0.0, 0.0, 33.6, 12.7, 65.0, 0.0],borderColor:COMP_COLORS[4],backgroundColor:'transparent',borderWidth:2,pointRadius:3,tension:.3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10,padding:8}}},scales:{y:{max:80,ticks:{callback:v=>v+'%',font:{size:9}}},x:{ticks:{font:{size:10}}}}}});
+
+  const RET_DATA=[{"label": "Jan/26", "pctP": 30.3, "pctL": 47.1, "totalP": 122, "retrabP": 37, "linhasR": 89, "totalL": 189, "top5": [["AISI 1020 TREFILADO REDONDO 5/8\"", 3, "CATIA"], ["TARUGO REDONDO DE NYLON DIAMETRO 20MM", 3, "CATIA"], ["DESAGUE 1/2 PPP - 8050151", 3, "CATIA"], ["ESPIGA RETA 15MM C/ ROSCA FEMEA 1/2\" - 8", 3, "CATIA"], ["PORCA 1/2 ABERTA PPP - 8042151", 3, "CATIA"]], "comp": {"ARIESA": {"pct": 25.0, "retrab": 1, "prods": 4, "linhas": 2}, "CATIA": {"pct": 34.4, "retrab": 33, "prods": 96, "linhas": 79}, "LARISSA": {"pct": 50.0, "retrab": 2, "prods": 4, "linhas": 6}, "MAYCON": {"pct": 0, "retrab": 0, "prods": 0, "linhas": 0}, "THAYS": {"pct": 0.0, "retrab": 0, "prods": 19, "linhas": 0}}}, {"label": "Fev/26", "pctP": 2.6, "pctL": 6.2, "totalP": 76, "retrabP": 2, "linhasR": 5, "totalL": 81, "top5": [["PU40 PRETO CIBRA 32863", 3, "ARIESA, CATIA"], ["CAIXA PAPELAO 1300MM X 1110MM X 1090MM S", 2, "LARISSA"]], "comp": {"ARIESA": {"pct": 0.0, "retrab": 0, "prods": 2, "linhas": 0}, "CATIA": {"pct": 1.7, "retrab": 1, "prods": 60, "linhas": 2}, "LARISSA": {"pct": 10.0, "retrab": 1, "prods": 10, "linhas": 2}, "MAYCON": {"pct": 0, "retrab": 0, "prods": 0, "linhas": 0}, "THAYS": {"pct": 0.0, "retrab": 0, "prods": 5, "linhas": 0}}}, {"label": "Mar/26", "pctP": 32.4, "pctL": 60.4, "totalP": 550, "retrabP": 178, "linhasR": 582, "totalL": 964, "top5": [["SAPOLIO - 250ML", 5, "ARIESA, LARISSA"], ["PEDRA SANITARIA", 4, "ARIESA, LARISSA"], ["DETERGENTE NEUTRO 5LTS", 4, "ARIESA, LARISSA"], ["DIFUSOR COALA 100 ML", 4, "ARIESA, LARISSA"], ["FITA CREPE FINA 3M - 24MM X 50M C/ 5RL", 4, "ARIESA"]], "comp": {"ARIESA": {"pct": 56.0, "retrab": 70, "prods": 125, "linhas": 234}, "CATIA": {"pct": 8.3, "retrab": 10, "prods": 121, "linhas": 20}, "LARISSA": {"pct": 63.9, "retrab": 53, "prods": 83, "linhas": 106}, "MAYCON": {"pct": 0.0, "retrab": 0, "prods": 2, "linhas": 0}, "THAYS": {"pct": 33.6, "retrab": 93, "prods": 277, "linhas": 213}}}, {"label": "Abr/26", "pctP": 7.6, "pctL": 14.2, "totalP": 304, "retrabP": 23, "linhasR": 47, "totalL": 332, "top5": [["CONJUNTO SOLDADO SUPORTE DESVIO ESQ FIX ", 2, "THAYS"], ["FIXADOR DO GUARDA CORPO - SD", 2, "THAYS"], ["CONJUNTO SOLDADO STOP DRONE", 2, "THAYS"], ["SUPORTE DO MASTRO", 2, "THAYS"], ["CONJUNTO SOLDADO - MASTRO DA ESTCAO METE", 2, "THAYS"]], "comp": {"ARIESA": {"pct": 0.0, "retrab": 0, "prods": 17, "linhas": 0}, "CATIA": {"pct": 4.1, "retrab": 7, "prods": 169, "linhas": 15}, "LARISSA": {"pct": 8.7, "retrab": 4, "prods": 46, "linhas": 8}, "MAYCON": {"pct": 18.2, "retrab": 2, "prods": 11, "linhas": 4}, "THAYS": {"pct": 12.7, "retrab": 8, "prods": 63, "linhas": 16}}}, {"label": "Mai/26", "pctP": 24.2, "pctL": 41.3, "totalP": 446, "retrabP": 108, "linhasR": 241, "totalL": 583, "top5": [["SPAD75A-05-01-00-001", 4, "THAYS"], ["FITA CREPE FINA 3M - 24MM X 50M C/ 5RL", 4, "ARIESA"], ["AC - DIVISORIA 02", 3, "THAYS"], ["AC - DIVISORIA 04", 3, "THAYS"], ["AC - FUNDO CADEIRAS", 3, "THAYS"]], "comp": {"ARIESA": {"pct": 18.4, "retrab": 7, "prods": 38, "linhas": 18}, "CATIA": {"pct": 0.8, "retrab": 2, "prods": 256, "linhas": 4}, "LARISSA": {"pct": 7.4, "retrab": 2, "prods": 27, "linhas": 4}, "MAYCON": {"pct": 0.0, "retrab": 0, "prods": 2, "linhas": 0}, "THAYS": {"pct": 65.0, "retrab": 89, "prods": 137, "linhas": 193}}}, {"label": "Jun/26", "pctP": 4.3, "pctL": 8.2, "totalP": 94, "retrabP": 4, "linhasR": 8, "totalL": 98, "top5": [["CANETA PERMANENTE PILOT 20 PRETA", 2, "ARIESA"], ["DISCO DE CORTE PARA ACO INOX 7 POLEGADAS", 2, "ARIESA, LARISSA"], ["ALUMINIO REDONDO 5\"X90MM", 2, "LARISSA"], ["SPRAY PRETO FOSCO USO GERAL PREMIUM COLO", 2, "ARIESA, LARISSA"]], "comp": {"ARIESA": {"pct": 2.9, "retrab": 1, "prods": 35, "linhas": 2}, "CATIA": {"pct": 0.0, "retrab": 0, "prods": 22, "linhas": 0}, "LARISSA": {"pct": 3.6, "retrab": 1, "prods": 28, "linhas": 2}, "MAYCON": {"pct": 0.0, "retrab": 0, "prods": 1, "linhas": 0}, "THAYS": {"pct": 0.0, "retrab": 0, "prods": 10, "linhas": 0}}}];
+  const retTabs=document.getElementById('retTabs');
+  if (retTabs) {
+    MESES.forEach((m,i)=>{const btn=document.createElement('button');btn.className='ret-tab'+(i===N-1?' active':'');btn.textContent=m;btn.onclick=()=>window.showRet(i);retTabs.appendChild(btn);});
+  }
+  window.showRet = function(idx) {
+    document.querySelectorAll('#retTabs .ret-tab').forEach((t,i)=>t.classList.toggle('active',i===idx));
+    const d=RET_DATA[idx];if(!d)return;
+    const maxPct=Math.max(...COMPRADORES.map(c=>d.comp[c]?.pct||0));
+    document.getElementById('ret-detail-wrap').innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px"><div><div style="font-size:10px;font-weight:700;color:var(--s2-gray);text-transform:uppercase;margin-bottom:10px">Por Comprador</div>'+COMPRADORES.map(c=>{const cd=d.comp[c]||{pct:0,retrab:0,prods:0,linhas:0};if(cd.prods===0)return'';const col=cd.pct>=20?RED:cd.pct>=10?AMBER:GREEN;const pct=maxPct>0?Math.round(cd.pct/maxPct*100):0;return'<div class="comp-item"><div class="comp-hd"><span class="comp-name">'+c+'</span><span style="color:'+col+';font-weight:700">'+cd.pct.toFixed(1)+'% <span style="color:var(--s2-gray);font-weight:400;font-size:10px">'+cd.retrab+'/'+cd.prods+' prods · '+cd.linhas+' linhas</span></span></div><div class="bar-bg"><div class="bar-fill" style="width:'+pct+'%;background:'+col+'"></div></div></div>';}).join('')+'<div style="margin-top:12px;background:var(--s2-border);border-radius:6px;padding:10px 12px;font-size:10px"><span style="color:var(--s2-gray)">Produtos:</span> <strong>'+d.retrabP+'/'+d.totalP+' ('+d.pctP+'%)</strong> · <span style="color:var(--s2-gray)">Linhas:</span> <strong>'+d.linhasR+'/'+d.totalL+' ('+d.pctL+'%)</strong></div></div><div><div style="font-size:10px;font-weight:700;color:var(--s2-gray);text-transform:uppercase;margin-bottom:10px">Top 5 Materiais</div>'+(d.top5||[]).map(([desc,scs,comps])=>'<div class="top5-item"><div style="flex:1"><div class="top5-desc">'+desc+'</div><div class="top5-comp">'+comps+'</div></div><span class="top5-badge">'+scs+' SCs</span></div>').join('')+'</div></div>';
+  }
+  if(retTabs) window.showRet(N-1);
+
+  // -- ABA 7: FRETES --
+  const FR={"total_frete": 7479.06, "total_merc": 300867.95, "pct_geral": 2.49, "total_ctes": 14, "qtd_fornec": 11, "qtd_transp": 3, "mes_lbl": ["Jun/26"], "mes_frete": [10740.26], "mes_pct": [2.49], "rank": [["USI-7", 5600.0, 74.88, 2.39, 2], ["FIXOVED", 296.8, 3.97, 1.09, 1], ["PRADO SUPRIMENTOS", 246.33, 3.29, 5.74, 2], ["NEW JC", 230.87, 3.09, 1.34, 2], ["TIBURON", 176.84, 2.36, 19.6, 1], ["CASA DOS MOSQUETÕES", 169.14, 2.26, 1.84, 1], ["AXION FERRAMENTAS", 166.15, 2.22, 32.27, 1], ["AÇOS OLIVEIRA", 161.5, 2.16, 85.47, 1], ["COPPERMETAL", 160.0, 2.14, 3.69, 1], ["ARAG DO BRASIL", 151.57, 2.03, 59.62, 1], ["FUSI BRAS", 119.86, 1.6, 5.8, 1]], "transp": [["WE TRANSP", 5600.0, 74.88, 2], ["TRAGA", 1384.5, 18.51, 9], ["EXPRESSO SAO MIGUEL", 494.56, 6.61, 3]]};
+  if(document.getElementById('cFretMes'))new Chart(document.getElementById('cFretMes'),{type:'bar',data:{labels:FR.mes_lbl,datasets:[{label:'Frete (R$)',data:FR.mes_frete,backgroundColor:'rgba(183,119,13,.4)',borderColor:AMBER,borderWidth:2,borderRadius:4,yAxisID:'y'},{label:'% s/ Compras',data:FR.mes_pct,type:'line',borderColor:BLUE,backgroundColor:'transparent',borderWidth:2,pointRadius:4,tension:.3,yAxisID:'y1'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}},tooltip:{callbacks:{label:c=>c.dataset.label.indexOf('R$')>=0?' R$ '+c.raw.toLocaleString('pt-BR'):' '+c.raw+'%'}}},scales:{y:{position:'left',ticks:{callback:v=>'R$'+(v/1000).toFixed(0)+'k',font:{size:9}}},y1:{position:'right',ticks:{callback:v=>v+'%',font:{size:9}},grid:{display:false},max:Math.max.apply(null,FR.mes_pct)*1.5},x:{ticks:{font:{size:10}}}}}});
+  if(document.getElementById('cFretTransp'))new Chart(document.getElementById('cFretTransp'),{type:'bar',data:{labels:FR.transp.map(r=>r[0]),datasets:[{label:'Frete',data:FR.transp.map(r=>r[1]),backgroundColor:'rgba(44,136,177,.4)',borderColor:BLUE,borderWidth:2,borderRadius:3}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' R$ '+c.raw.toLocaleString('pt-BR')}}},scales:{x:{ticks:{callback:v=>'R$'+(v/1000).toFixed(0)+'k',font:{size:9}}},y:{ticks:{font:{size:10}}}}}});
+  const wrap=document.getElementById('rank-fretes-wrap');
+  if(wrap){const maxF=Math.max(...FR.rank.map(r=>r[1]));let html='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px"><thead><tr><th style="background:'+NAVY+';color:#fff;padding:8px 10px;text-align:left;width:36px">#</th><th style="background:'+NAVY+';color:#fff;padding:8px 10px;text-align:left">Fornecedor</th><th style="background:'+NAVY+';color:#fff;padding:8px 10px;text-align:center">CTEs</th><th style="background:'+NAVY+';color:#fff;padding:8px 10px;text-align:right">Frete (R$)</th><th style="background:'+NAVY+';color:#fff;padding:8px 10px;text-align:right">% Repr.</th><th style="background:'+NAVY+';color:#fff;padding:8px 10px;text-align:right">% Frete/Merc.</th><th style="background:'+NAVY+';color:#fff;padding:8px 10px;text-align:center;min-width:140px">Participação</th></tr></thead><tbody>';FR.rank.forEach((r,i)=>{const bg=i%2===0?'#fff':'#F8FAFB';const barW=Math.round(r[1]/maxF*100);const cor=r[3]>=10?RED:r[3]>=5?AMBER:GREEN;html+='<tr style="background:'+bg+'"><td style="padding:7px 10px;border-bottom:.5px solid var(--s2-border);color:#999;font-size:10px">'+(i+1)+'</td><td style="padding:7px 10px;border-bottom:.5px solid var(--s2-border);font-weight:600;color:'+NAVY+'">'+r[0]+'</td><td style="padding:7px 10px;border-bottom:.5px solid var(--s2-border);text-align:center;color:'+NAVY+'">'+r[4]+'</td><td style="padding:7px 10px;border-bottom:.5px solid var(--s2-border);text-align:right;font-weight:700;color:'+NAVY+'">R$ '+Number(r[1]).toLocaleString('pt-BR',{minimumFractionDigits:2})+'</td><td style="padding:7px 10px;border-bottom:.5px solid var(--s2-border);text-align:right;color:'+NAVY+';font-weight:600">'+r[2]+'%</td><td style="padding:7px 10px;border-bottom:.5px solid var(--s2-border);text-align:right;color:'+cor+';font-weight:700">'+r[3]+'%</td><td style="padding:7px 10px;border-bottom:.5px solid var(--s2-border)"><div style="height:6px;background:#E8ECF0;border-radius:3px;overflow:hidden"><div style="width:'+barW+'%;height:100%;background:'+AMBER+';border-radius:3px"></div></div></td></tr>';});html+='</tbody></table></div>';wrap.innerHTML=html;}
+})();
 </script>
 </body>
 </html>
